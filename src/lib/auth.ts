@@ -1,4 +1,4 @@
-const CLIENT_ID = import.meta.env.VITE_POLLINATIONS_CLIENT_ID || '';
+const CLIENT_ID = 'pk_fJFepOdA7LMOZ1LA';
 const REDIRECT_URI = typeof window !== 'undefined' ? `${window.location.origin}/prompt-to-market/` : '';
 
 export function initiateAuth() {
