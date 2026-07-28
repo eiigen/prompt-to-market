@@ -27,12 +27,11 @@ Output only the copy, no explanations.`,
 - CTA: Tell them what to do next.
 - Hashtags: 5-10 relevant at end. Mix broad + niche.
 - Emojis: 2-3, sparingly.
-- No "Hey guys!" or "Hope you're having a great day!"
 Output only the caption text.`,
     user: idea,
   }),
   twitter: (idea) => ({
-    system: `You are a Twitter growth strategist. Write ONE tweet about this product. Under 280 characters. One clear benefit. No hashtags. Ends with a hook that invites replies. Simple direct language. Output only the tweet text.`,
+    system: `You are a Twitter growth strategist. Write ONE tweet about this product. Under 280 characters. One clear benefit. No hashtags. Ends with a hook that invites replies. Output only the tweet text.`,
     user: idea,
   }),
   linkedin: (idea) => ({
@@ -45,14 +44,7 @@ Output only the caption text.`,
 Q: [question]
 A: [answer — 1-2 sentences, specific and honest]
 
-Questions to cover:
-1. What is it?
-2. Who is it for?
-3. How is it different from alternatives?
-4. How much does it cost?
-5. When can I use it?
-
-If pricing isn't decided, say "Pricing TBD — join waitlist for early access." If no timeline, say "Building in public — follow for updates."
+Questions: What is it? Who is it for? How is it different? How much does it cost? When can I use it?
 Output only the Q&A, no extra text.`,
     user: idea,
   }),
@@ -65,23 +57,25 @@ export const IMAGE_PROMPTS: Record<string, (idea: string) => string> = {
   og: (idea) => `Open graph image for ${idea}. Modern clean design. Professional. Product name and tagline concept.`,
 };
 
-export const TEXT_MODELS = [
-  { value: 'openai', label: 'GPT (default)' },
-  { value: 'openai-fast', label: 'GPT Fast' },
-  { value: 'gemini', label: 'Gemini' },
-  { value: 'gemini-fast', label: 'Gemini Fast' },
-  { value: 'deepseek', label: 'DeepSeek' },
-  { value: 'mistral', label: 'Mistral' },
-  { value: 'grok', label: 'Grok' },
-  { value: 'claude', label: 'Claude' },
-  { value: 'llama', label: 'Llama' },
-];
+export interface ModelInfo {
+  name: string;
+  title: string;
+  description: string;
+  category: 'text' | 'image';
+}
 
-export const IMAGE_MODELS = [
-  { value: 'flux', label: 'Flux (default)' },
-  { value: 'gptimage', label: 'GPT Image' },
-  { value: 'turbo', label: 'Turbo' },
-  { value: 'flux-realism', label: 'Flux Realism' },
-  { value: 'flux-anime', label: 'Flux Anime' },
-  { value: 'flux-3d', label: 'Flux 3D' },
-];
+let cachedModels: { text: ModelInfo[]; image: ModelInfo[] } | null = null;
+
+export async function fetchModels(): Promise<{ text: ModelInfo[]; image: ModelInfo[] }> {
+  if (cachedModels) return cachedModels;
+  try {
+    const res = await fetch('https://gen.pollinations.ai/models');
+    const data = await res.json();
+    const text = data.filter((m: any) => m.category === 'text').map((m: any) => ({ name: m.name, title: m.title || m.name, description: m.description || '', category: 'text' as const }));
+    const image = data.filter((m: any) => m.category === 'image').map((m: any) => ({ name: m.name, title: m.title || m.name, description: m.description || '', category: 'image' as const }));
+    cachedModels = { text, image };
+    return cachedModels;
+  } catch {
+    return { text: [{ name: 'openai', title: 'GPT (default)', description: '', category: 'text' }], image: [{ name: 'flux', title: 'Flux (default)', description: '', category: 'image' }] };
+  }
+}

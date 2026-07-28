@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getApiKey, initiateAuth, logout } from '../lib/auth';
-import { TEXT_MODELS, IMAGE_MODELS } from '../lib/prompts';
+import { fetchModels, type ModelInfo } from '../lib/prompts';
 
 interface Props {
   onGenerate: (idea: string, textModel: string, imageModel: string) => void;
@@ -11,7 +11,16 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
   const [idea, setIdea] = useState('');
   const [textModel, setTextModel] = useState('openai');
   const [imageModel, setImageModel] = useState('flux');
+  const [textModels, setTextModels] = useState<ModelInfo[]>([]);
+  const [imageModels, setImageModels] = useState<ModelInfo[]>([]);
   const apiKey = getApiKey();
+
+  useEffect(() => {
+    fetchModels().then(({ text, image }) => {
+      setTextModels(text);
+      setImageModels(image);
+    });
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,22 +55,16 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
         <div className="flex flex-col sm:flex-row gap-sm px-sm pb-xs">
           <div className="flex items-center gap-sm flex-1">
             <label className="text-label-sm text-on-surface-variant whitespace-nowrap">Text:</label>
-            <select
-              value={textModel}
-              onChange={(e) => setTextModel(e.target.value)}
-              className="bg-surface-container-low text-on-surface text-label-md px-sm py-xs rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary flex-1"
-            >
-              {TEXT_MODELS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+            <select value={textModel} onChange={(e) => setTextModel(e.target.value)}
+              className="bg-surface-container-low text-on-surface text-label-md px-sm py-xs rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary flex-1">
+              {textModels.map((m) => <option key={m.name} value={m.name} title={m.description}>{m.title}</option>)}
             </select>
           </div>
           <div className="flex items-center gap-sm flex-1">
             <label className="text-label-sm text-on-surface-variant whitespace-nowrap">Image:</label>
-            <select
-              value={imageModel}
-              onChange={(e) => setImageModel(e.target.value)}
-              className="bg-surface-container-low text-on-surface text-label-md px-sm py-xs rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary flex-1"
-            >
-              {IMAGE_MODELS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+            <select value={imageModel} onChange={(e) => setImageModel(e.target.value)}
+              className="bg-surface-container-low text-on-surface text-label-md px-sm py-xs rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary flex-1">
+              {imageModels.map((m) => <option key={m.name} value={m.name} title={m.description}>{m.title}</option>)}
             </select>
           </div>
         </div>
