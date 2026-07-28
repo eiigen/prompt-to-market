@@ -12,7 +12,7 @@ export interface HistoryEntry {
 export function saveToHistory(entry: HistoryEntry) {
   const all = getHistory();
   all.unshift(entry);
-  if (all.length > 20) all.pop();
+  
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
 }
 
