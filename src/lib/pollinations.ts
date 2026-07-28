@@ -4,6 +4,7 @@ export async function generateText(
   systemPrompt: string,
   userPrompt: string,
   apiKey: string,
+  model = 'openai',
   timeoutMs = 60000
 ): Promise<string> {
   const controller = new AbortController();
@@ -13,7 +14,7 @@ export async function generateText(
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'openai',
+        model,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -38,18 +39,7 @@ export async function generateText(
   }
 }
 
-export function getImageUrl(prompt: string, width: number, height: number): string {
+export function getImageUrl(prompt: string, width: number, height: number, model = 'flux'): string {
   const encoded = encodeURIComponent(prompt);
-  return `${BASE_URL}/image/${encoded}?model=flux&width=${width}&height=${height}&nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
-}
-
-export async function checkAuth(apiKey: string): Promise<boolean> {
-  try {
-    const res = await fetch(`${BASE_URL}/v1/models`, {
-      headers: { Authorization: `Bearer ${apiKey}` },
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+  return `${BASE_URL}/image/${encoded}?model=${model}&width=${width}&height=${height}&nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
 }

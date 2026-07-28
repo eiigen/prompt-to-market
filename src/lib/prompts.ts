@@ -1,15 +1,23 @@
 export const TEXT_PROMPTS: Record<string, (idea: string) => { system: string; user: string }> = {
   positioning: (idea) => ({
-    system: `You are a product positioning expert. Given a product idea, write ONE sentence that captures what the product is, who it's for, and the key benefit. Be specific. Avoid buzzwords. Format: "[Product] is a [category] that helps [audience] [benefit] by [mechanism]." Output only the sentence, nothing else.`,
+    system: `You are a product positioning expert. Given a product idea, write ONE sentence that captures what the product is, who it's for, and the key benefit. Be specific. Avoid buzzwords. Output only the sentence, nothing else.`,
     user: idea,
   }),
   landing: (idea) => ({
-    system: `You are a conversion copywriter. Given a product idea, write landing page copy. Output as JSON with these exact keys:
-- "headline": Under 10 words. Focus on outcome, not feature.
-- "subhead": Under 20 words. Expand on how the headline's promise is delivered.
-- "benefits": Array of 3 strings. Each starts with an action verb. Each ends with a specific outcome.
-- "cta": 2-5 words. Action-oriented. Not "Sign Up" or "Learn More."
-Output only the JSON, no markdown fences.`,
+    system: `You are a conversion copywriter. Given a product idea, write landing page copy. Output formatted text with this structure:
+
+Headline: [under 10 words, focus on outcome]
+
+Subheadline: [under 20 words, expand on the promise]
+
+Benefits:
+- [action verb]... [specific outcome]
+- [action verb]... [specific outcome]
+- [action verb]... [specific outcome]
+
+CTA: [2-5 words, action-oriented]
+
+Output only the copy, no explanations.`,
     user: idea,
   }),
   instagram: (idea) => ({
@@ -32,7 +40,20 @@ Output only the caption text.`,
     user: idea,
   }),
   faq: (idea) => ({
-    system: `You are a startup advisor. Write a Founder FAQ with 5 questions: "What is it?", "Who is it for?", "How is it different?", "How much does it cost?", "When can I use it?". Output as JSON: { "questions": [{"question": "...", "answer": "..."}, ...] }. No markdown fences.`,
+    system: `You are a startup advisor. Given a product idea, write a Founder FAQ with 5 questions and answers. Format as:
+
+Q: [question]
+A: [answer — 1-2 sentences, specific and honest]
+
+Questions to cover:
+1. What is it?
+2. Who is it for?
+3. How is it different from alternatives?
+4. How much does it cost?
+5. When can I use it?
+
+If pricing isn't decided, say "Pricing TBD — join waitlist for early access." If no timeline, say "Building in public — follow for updates."
+Output only the Q&A, no extra text.`,
     user: idea,
   }),
 };
@@ -43,3 +64,24 @@ export const IMAGE_PROMPTS: Record<string, (idea: string) => string> = {
   'social-image': (idea) => `Instagram post design for ${idea}. Clean modern aesthetic. Subtle gradient background. Product showcase. High quality.`,
   og: (idea) => `Open graph image for ${idea}. Modern clean design. Professional. Product name and tagline concept.`,
 };
+
+export const TEXT_MODELS = [
+  { value: 'openai', label: 'GPT (default)' },
+  { value: 'openai-fast', label: 'GPT Fast' },
+  { value: 'gemini', label: 'Gemini' },
+  { value: 'gemini-fast', label: 'Gemini Fast' },
+  { value: 'deepseek', label: 'DeepSeek' },
+  { value: 'mistral', label: 'Mistral' },
+  { value: 'grok', label: 'Grok' },
+  { value: 'claude', label: 'Claude' },
+  { value: 'llama', label: 'Llama' },
+];
+
+export const IMAGE_MODELS = [
+  { value: 'flux', label: 'Flux (default)' },
+  { value: 'gptimage', label: 'GPT Image' },
+  { value: 'turbo', label: 'Turbo' },
+  { value: 'flux-realism', label: 'Flux Realism' },
+  { value: 'flux-anime', label: 'Flux Anime' },
+  { value: 'flux-3d', label: 'Flux 3D' },
+];

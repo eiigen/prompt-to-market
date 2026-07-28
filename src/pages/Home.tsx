@@ -5,9 +5,12 @@ import GenerateForm from '../components/GenerateForm';
 export default function Home() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const handleGenerate = (idea: string) => {
+
+  const handleGenerate = (idea: string, textModel: string, imageModel: string) => {
     setIsLoading(true);
     sessionStorage.setItem('product_idea', idea);
+    sessionStorage.setItem('text_model', textModel);
+    sessionStorage.setItem('image_model', imageModel);
     navigate('/results');
   };
 
