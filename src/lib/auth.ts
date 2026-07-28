@@ -1,12 +1,14 @@
-const CLIENT_ID = import.meta.env.VITE_POLLINATIONS_CLIENT_ID || 'pk_fJFepOdA7LMOZ1LA';
+const CLIENT_ID = import.meta.env.VITE_POLLINATIONS_CLIENT_ID || '';
 const REDIRECT_URI = typeof window !== 'undefined' ? `${window.location.origin}/prompt-to-market/` : '';
 
 export function initiateAuth() {
   const params = new URLSearchParams({
     redirect_uri: REDIRECT_URI,
     client_id: CLIENT_ID,
+    scope: '["usage"]',
+    redirect_url: REDIRECT_URI,
   });
-  window.location.href = `https://gen.pollinations.ai/authorize?${params}`;
+  window.location.href = `https://enter.pollinations.ai/authorize?${params}`;
 }
 
 export function handleCallback(): string | null {
