@@ -18,27 +18,30 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
-      <div className="flex flex-col sm:flex-row gap-2">
-        <input
-          type="text"
-          value={idea}
-          onChange={(e) => setIdea(e.target.value)}
-          placeholder="e.g. AI meal planner for gym bros"
-          className="flex-1 px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
-          disabled={isLoading}
-        />
+    <form onSubmit={handleSubmit} className="w-full max-w-3xl">
+      <div className="glass-card p-sm rounded-xl shadow-2xl flex flex-col md:flex-row gap-sm">
+        <div className="flex-1 relative flex items-center">
+          <input
+            type="text"
+            value={idea}
+            onChange={(e) => setIdea(e.target.value)}
+            placeholder="Describe your product idea (e.g., A subscription box for plant lovers)..."
+            className="w-full bg-surface-container-low border-none focus:ring-1 focus:ring-primary text-on-surface py-lg pl-md pr-md rounded-lg text-body-md placeholder:text-outline"
+            disabled={isLoading}
+          />
+        </div>
         <button
           type="submit"
           disabled={isLoading || !idea.trim()}
-          className="px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="bg-[#3B82F6] hover:bg-blue-600 text-white px-2xl py-lg rounded-lg text-label-md transition-all flex items-center justify-center gap-sm group disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? 'Generating...' : apiKey ? 'Generate Kit' : 'Connect & Generate'}
+          {isLoading ? 'Generating...' : apiKey ? 'Generate Launch Kit' : 'Connect & Generate'}
+          <span className="group-hover:translate-x-1 transition-transform">→</span>
         </button>
       </div>
-      <div className="mt-3 text-sm text-gray-500">
+      <div className="mt-md text-sm text-on-surface-variant">
         {apiKey ? (
-          <span>Connected ✓ <button type="button" onClick={logout} className="underline hover:text-gray-300">Disconnect</button></span>
+          <span>Connected ✓ <button type="button" onClick={logout} className="underline hover:text-primary">Disconnect</button></span>
         ) : (
           <span>Connect Pollinations to start generating</span>
         )}

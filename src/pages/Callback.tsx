@@ -17,14 +17,14 @@ export default function Callback() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-      <div className="text-center">
-        {status === 'processing' && <p className="text-lg text-gray-400">Connecting to Pollinations...</p>}
-        {status === 'success' && <p className="text-lg text-green-400">Connected! Redirecting...</p>}
+    <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center">
+      <div className="glass-card rounded-2xl p-2xl text-center max-w-md">
+        {status === 'processing' && <p className="text-body-lg text-on-surface-variant">Connecting to Pollinations...</p>}
+        {status === 'success' && <p className="text-body-lg text-primary">Connected! Redirecting...</p>}
         {status === 'error' && (
           <div>
-            <p className="text-lg text-red-400">Connection failed.</p>
-            <button onClick={() => navigate('/')} className="mt-4 text-blue-400 underline">Go back</button>
+            <p className="text-body-lg text-error">Connection failed.</p>
+            <button onClick={() => navigate('/')} className="mt-lg text-primary underline">Go back</button>
           </div>
         )}
       </div>

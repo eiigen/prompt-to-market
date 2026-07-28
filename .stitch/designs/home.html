@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prompt to Market | Autonomous Launch Execution</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#31394d",
+                    "secondary-fixed": "#e1e0ff",
+                    "surface-container-highest": "#2d3449",
+                    "on-background": "#dae2fd",
+                    "inverse-surface": "#dae2fd",
+                    "on-primary": "#002e6a",
+                    "on-secondary-fixed-variant": "#2f2ebe",
+                    "secondary-container": "#3131c0",
+                    "on-secondary-container": "#b0b2ff",
+                    "on-secondary": "#1000a9",
+                    "error-container": "#93000a",
+                    "on-secondary-fixed": "#07006c",
+                    "surface-container-high": "#222a3d",
+                    "tertiary-fixed-dim": "#ffb786",
+                    "error": "#ffb4ab",
+                    "outline": "#8c909f",
+                    "primary-fixed": "#d8e2ff",
+                    "on-primary-fixed-variant": "#004395",
+                    "surface": "#0b1326",
+                    "surface-container": "#171f33",
+                    "on-tertiary": "#502400",
+                    "surface-dim": "#0b1326",
+                    "secondary-fixed-dim": "#c0c1ff",
+                    "outline-variant": "#424754",
+                    "inverse-primary": "#005ac2",
+                    "tertiary-container": "#df7412",
+                    "surface-variant": "#2d3449",
+                    "surface-container-lowest": "#060e20",
+                    "surface-tint": "#adc6ff",
+                    "on-primary-container": "#00285d",
+                    "primary-container": "#4d8eff",
+                    "on-surface-variant": "#c2c6d6",
+                    "on-surface": "#dae2fd",
+                    "background": "#0b1326",
+                    "on-tertiary-fixed-variant": "#723600",
+                    "on-error": "#690005",
+                    "on-error-container": "#ffdad6",
+                    "tertiary": "#ffb786",
+                    "primary": "#adc6ff",
+                    "surface-container-low": "#131b2e",
+                    "on-tertiary-fixed": "#311400",
+                    "secondary": "#c0c1ff",
+                    "on-primary-fixed": "#001a42",
+                    "primary-fixed-dim": "#adc6ff",
+                    "on-tertiary-container": "#461f00",
+                    "inverse-on-surface": "#283044",
+                    "tertiary-fixed": "#ffdcc6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin": "32px",
+                    "xs": "4px",
+                    "container-max": "1280px",
+                    "3xl": "64px",
+                    "gutter": "24px",
+                    "base": "4px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "2xl": "48px",
+                    "sm": "8px"
+            },
+            "fontFamily": {
+                    "display-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "title-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "display-md": ["36px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["30px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b1326;
+            color: #dae2fd;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+<!-- TopNavBar -->
+<nav class="sticky top-0 z-50 flex justify-between items-center w-full px-margin py-md max-w-container-max mx-auto bg-surface/80 backdrop-blur-md border-b border-outline-variant dark:border-outline-variant">
+<div class="flex items-center gap-sm">
+<span class="text-title-lg font-display-md font-bold text-on-surface dark:text-on-surface">Prompt to Market</span>
+</div>
+<div class="hidden md:flex items-center gap-xl">
+<a class="text-label-md font-label-md text-primary dark:text-primary border-b-2 border-primary pb-1 transition-colors" href="#">Platform</a>
+<a class="text-label-md font-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Features</a>
+<a class="text-label-md font-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Case Studies</a>
+<a class="text-label-md font-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Pricing</a>
+</div>
+<div class="flex items-center gap-md">
+<button class="hidden sm:block text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors">Login</button>
+<button class="bg-[#3B82F6] hover:bg-blue-600 text-white px-lg py-sm rounded-lg font-label-md transition-all active:scale-95">Get Started</button>
+</div>
+</nav>
+<main class="relative">
+<!-- Hero Section -->
+<section class="relative pt-3xl pb-3xl px-margin overflow-hidden">
+
+<div class="relative z-10 max-w-container-max mx-auto text-center flex flex-col items-center">
+<div class="inline-flex items-center gap-xs px-sm py-xs bg-primary-container/10 border border-primary/20 rounded-full mb-lg">
+<span class="material-symbols-outlined text-[16px] text-primary">auto_awesome</span>
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-wider">AI-Powered Market Execution</span>
+</div>
+<h1 class="font-display-lg text-display-lg md:text-[64px] text-on-surface max-w-4xl mb-md leading-tight">
+                    Type a product idea. <br/>
+<span class="text-primary">Get a launch kit.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-2xl">
+                    Your complete launch kit—landing pages, ads, and social posts—generated in seconds by AI. Turn concepts into commerce instantly.
+                </p>
+<!-- Hero CTA Area -->
+<div class="w-full max-w-3xl glass-card p-sm rounded-xl shadow-2xl flex flex-col md:flex-row gap-sm">
+<div class="flex-1 relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant">lightbulb</span>
+<input class="w-full bg-surface-container-low border-none focus:ring-1 focus:ring-primary text-on-surface py-lg pl-[48px] pr-md rounded-lg font-body-md placeholder:text-outline" placeholder="Describe your product idea (e.g., A subscription box for plant lovers)..." type="text"/>
+</div>
+<button class="bg-[#3B82F6] hover:bg-blue-600 text-white px-2xl py-lg rounded-lg font-label-md transition-all flex items-center justify-center gap-sm group">
+                        Generate Launch Kit
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">bolt</span>
+</button>
+</div>
+<div class="mt-xl flex items-center gap-lg opacity-60">
+<div class="flex -space-x-sm">
+<img class="w-8 h-8 rounded-full border-2 border-surface" data-alt="Close-up professional portrait of a tech entrepreneur in a modern office, soft lighting, sharp focus, cinematic corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDo1m_g8xBaLUUcAagKcAG2ovM8PDKftz6BYPiEaI2bfqYo7-2jRxxofzrqQYTjJeZS2b7sgyoks354qiIj8LeNnetOwsAqDbdHtWDV88c9ic_Sgs6Ppmvk6AFQTJJfkffQvIAe859yCxG4WsCenhj3nLWfgSyvQPyMMesBQlmcNk2yYiRuKgsZ5cL75oFD__wcTX2Jrjx1ZmCDmRr8c6Z28neYDiyRqBIu81tE_8fkHVD8I_nU4wMZWJR8g-lArptKLKvSLfssPbRi"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface" data-alt="Portrait of a female digital marketer in a creative studio setting, vibrant colors, professional studio lighting, high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9QtSbCJjfDBi1cZn9XxHhVgPaImIZfaOsAuVssHOKCOqMR9LbNoigf-m40m_W-Ug-aws14GYU1IO_q6OHqmNYiNE8c0M4an2024rnmVoWwolt2eo6aEEXl3kkKhLQKbYuP1aB9HOi3V2VEKwxzqDQ4CPV9bvjHzyJL2JxY0LDj4nqDPDH4ipQTgrapWc_8TjvV_qCuTKOIiIGyes5B5GJ0_jn95RfnH75By9gLYUgJ6BCQk9GxZXC4BEz58d4b9HUr7L9Qv5HKkLK"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface" data-alt="Portrait of a young software developer, minimalistic background, cool blue tones, high-tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbrhSAQU8xFykB489c5afo5ovhHstC5X3mYmuDENvC7ASE8hSD2ziEKyYwq6CYCl82mJLZB5vNQWAVaYawWXQfSLCb2Q8Yjz11Yza_fcsEOvxVKX1b3cqhhQWjSl5TKHCMFcpGa2j9m7AiYuwy8sNGmW9jcRH_N0qIR0_835MNsdn5IOf-jrRli2VKTjMoFOxqe_0NLJQZordEMg4Jyo-EzY4lqnxYYTux2hHWkKK8i945EEM1NBvfWU7aatIh0kGnVvu9MmmIM8G0"/>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Trusted by 5,000+ early-stage founders</p>
+</div>
+</div>
+</section>
+<!-- Bento Grid Showcase (AI Capabilities) -->
+<section class="py-3xl px-margin max-w-container-max mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+<!-- Large Feature Card -->
+<div class="md:col-span-8 glass-card rounded-xl p-xl overflow-hidden relative group">
+<div class="relative z-10">
+<span class="text-primary font-label-sm mb-sm block">INTELLIGENT ASSETS</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-md">High-Conversion Landing Pages</h3>
+<p class="text-body-md text-on-surface-variant max-w-md">Optimized layouts and persuasive copy written by AI that understands your target demographic's pain points.</p>
+</div>
+<div class="mt-xl relative h-64 rounded-lg bg-surface-container overflow-hidden border border-outline-variant">
+<div class="absolute inset-0 bg-cover bg-center opacity-40 group-hover:scale-105 transition-transform duration-700" data-alt="A clean, minimalist SaaS landing page interface with abstract geometric UI elements, blue and dark slate color palette, professional tech presentation." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDhCRsbBLo5dyR4fcrv4eMbujPn-srV5GJShNY6XD3_tqpmnkfaPRKq-t8Lt0TZiiSMZBPzOnYUahxHep8mFcCT_FVrBYgGFHV4NPIeh08e8uSDbM1fIMZe-ddwDedvmV_NuGyO4H1hUUzIU_w0QftQD21K2ElY0FfdypAXmRpfLd-KfTaj2_4OUWn2hgo9qwbKtDTsIURDff_Y03HhbLIpvoooII1mz6ES8LKK18gXrSMCAM-53Dw945X_UZNDPTzF3ki_Eaw27Rn4')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent"></div>
+</div>
+</div>
+<!-- Small Feature Card -->
+<div class="md:col-span-4 glass-card rounded-xl p-xl flex flex-col justify-between">
+<div>
+<span class="text-tertiary font-label-sm mb-sm block">SOCIAL REACH</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-md">Ad Campaigns</h3>
+<p class="text-body-md text-on-surface-variant">Ready-to-run copy and creative for Meta, Google, and LinkedIn.</p>
+</div>
+<div class="mt-lg flex justify-center">
+<span class="material-symbols-outlined text-[80px] text-primary/20" style="font-variation-settings: 'FILL' 1;">campaign</span>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works Section -->
+<section class="py-3xl px-margin bg-surface-container-low/30">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-2xl">
+<h2 class="font-headline-lg text-[36px] text-on-surface mb-md">Launch in three simple steps</h2>
+<p class="text-body-lg text-on-surface-variant max-w-2xl mx-auto">From concept to live campaign in under 60 seconds.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-xl">
+<!-- Step 1 -->
+<div class="relative group">
+<div class="mb-lg w-16 h-16 rounded-xl bg-primary-container/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/50 transition-colors">
+<span class="text-headline-md text-primary">01</span>
+</div>
+<h4 class="font-title-lg text-title-lg text-on-surface mb-sm">Describe your product idea</h4>
+<p class="text-body-md text-on-surface-variant">Share your vision in a few sentences. Our engine processes the core value prop and target market.</p>
+</div>
+<!-- Step 2 -->
+<div class="relative group">
+<div class="mb-lg w-16 h-16 rounded-xl bg-primary-container/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/50 transition-colors">
+<span class="text-headline-md text-primary">02</span>
+</div>
+<h4 class="font-title-lg text-title-lg text-on-surface mb-sm">AI generates your launch kit</h4>
+<p class="text-body-md text-on-surface-variant">Our AI builds everything from copy to assets, including legal pages, email sequences, and visual mockups.</p>
+</div>
+<!-- Step 3 -->
+<div class="relative group">
+<div class="mb-lg w-16 h-16 rounded-xl bg-primary-container/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/50 transition-colors">
+<span class="text-headline-md text-primary">03</span>
+</div>
+<h4 class="font-title-lg text-title-lg text-on-surface mb-sm">Download and launch</h4>
+<p class="text-body-md text-on-surface-variant">Get your kit and go to market instantly. One-click deploy or download the raw source files.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-3xl px-margin">
+<div class="max-w-container-max mx-auto">
+<div class="glass-card rounded-2xl p-2xl text-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+<div class="relative z-10">
+<h2 class="font-display-md text-display-md text-on-surface mb-lg">Ready to see your idea in action?</h2>
+<p class="text-body-lg text-on-surface-variant mb-xl max-w-xl mx-auto">Start building your market presence today with our autonomous launch engine.</p>
+<div class="flex flex-col sm:flex-row gap-md justify-center">
+<button class="bg-[#3B82F6] hover:bg-blue-600 text-white px-2xl py-lg rounded-lg font-label-md transition-all active:scale-95 shadow-lg shadow-blue-500/20">Create My Kit Now</button>
+<button class="border border-outline-variant text-on-surface hover:bg-surface-bright px-2xl py-lg rounded-lg font-label-md transition-all">View Demo Kits</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full px-margin py-xl flex flex-col md:flex-row justify-between items-center gap-md max-w-container-max mx-auto border-t border-outline-variant dark:border-outline-variant bg-surface-container-lowest dark:bg-surface-container-lowest">
+<div class="flex flex-col items-center md:items-start gap-xs">
+<span class="text-label-md font-display-md font-bold text-on-surface">Prompt to Market</span>
+<p class="text-label-sm font-label-sm text-on-surface-variant opacity-60">© 2024 Prompt to Market. Autonomous launch execution.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-xl">
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary underline transition-all duration-200" href="#">Privacy Policy</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary underline transition-all duration-200" href="#">Terms of Service</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary underline transition-all duration-200" href="#">API Docs</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary underline transition-all duration-200" href="#">Contact Support</a>
+</div>
+<div class="flex gap-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">share</span></a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">public</span></a>
+</div>
+</footer>
+<script>
+        // Micro-interaction for input glow effect
+        const inputArea = document.querySelector('input');
+        const ctaCard = document.querySelector('.glass-card');
+        
+        inputArea?.addEventListener('focus', () => {
+            ctaCard.style.borderColor = '#3B82F6';
+            ctaCard.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.2)';
+        });
+        
+        inputArea?.addEventListener('blur', () => {
+            ctaCard.style.borderColor = 'rgba(51, 65, 85, 0.5)';
+            ctaCard.style.boxShadow = 'none';
+        });
+
+        // Simple scroll reveal for cards
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.style.opacity = 0;
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            observer.observe(card);
+        });
+    </script>
+</body></html>

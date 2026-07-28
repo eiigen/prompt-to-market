@@ -47,7 +47,6 @@ export default function Results() {
     ];
     setOutputs(initial);
 
-    // Fire text calls in parallel
     TEXT_TYPES.forEach(async (type) => {
       const { system, user } = TEXT_PROMPTS[type](storedIdea);
       setOutputs((prev) => prev.map((o) => o.id === type ? { ...o, status: 'loading' } : o));
@@ -59,7 +58,6 @@ export default function Results() {
       }
     });
 
-    // Fire image calls (just URLs)
     IMAGE_TYPES.forEach((type) => {
       const prompt = IMAGE_PROMPTS[type](storedIdea);
       const { width, height } = IMAGE_SIZES[type];
@@ -79,38 +77,50 @@ export default function Results() {
     : outputs.filter((o) => IMAGE_TYPES.includes(o.type as any));
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 md:p-8 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <button onClick={() => navigate('/')} className="text-blue-400 underline text-sm">← New idea</button>
-        <h1 className="text-3xl font-bold mt-2">Launch Kit</h1>
-        <p className="text-gray-400">{idea}</p>
-        <div className="flex items-center justify-between mt-2">
-          <p className="text-sm text-gray-500">{doneCount}/{outputs.length} outputs ready</p>
+    <div className="min-h-screen bg-surface text-on-surface">
+      {/* TopNavBar */}
+      <nav className="sticky top-0 z-50 flex justify-between items-center w-full px-margin py-md max-w-container-max mx-auto bg-surface/80 backdrop-blur-md border-b border-outline-variant">
+        <button onClick={() => navigate('/')} className="flex items-center gap-sm">
+          <span className="text-title-lg font-bold text-on-surface">Prompt to Market</span>
+        </button>
+        <div className="flex items-center gap-md">
           <DownloadAll outputs={outputs} idea={idea} />
         </div>
-      </div>
+      </nav>
 
-      <div className="flex gap-2 mb-6">
-        {(['all', 'copy', 'visuals'] as const).map((t) => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
-            {t === 'all' ? 'All' : t === 'copy' ? '📝 Copy' : '🎨 Visuals'}
-          </button>
-        ))}
-      </div>
+      <main className="max-w-container-max mx-auto px-margin py-xl">
+        {/* Header */}
+        <div className="mb-xl">
+          <button onClick={() => navigate('/')} className="text-label-md text-primary hover:underline mb-md inline-block">← New idea</button>
+          <h1 className="text-headline-lg text-on-surface">Your Marketing Kit is Ready</h1>
+          <p className="text-body-lg text-on-surface-variant mt-sm">{idea}</p>
+          <p className="text-label-md text-on-surface-variant mt-sm">{doneCount}/{outputs.length} outputs generated</p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filtered.map((o) => (
-          <div key={o.id} className="border border-gray-800 rounded-lg p-4 bg-gray-900">
-            <h3 className="font-medium mb-3 text-gray-200">{LABELS[o.type] || o.type}</h3>
-            {'content' in o ? (
-              <TextOutput output={o as TOut} idea={idea} onUpdate={updateText} />
-            ) : (
-              <ImageOutput output={o as IOut} idea={idea} onUpdate={updateImage} />
-            )}
-          </div>
-        ))}
-      </div>
+        {/* Tabs */}
+        <div className="flex gap-sm mb-xl">
+          {(['all', 'copy', 'visuals'] as const).map((t) => (
+            <button key={t} onClick={() => setTab(t)}
+              className={`px-lg py-sm rounded-lg text-label-md transition-colors ${tab === t ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}>
+              {t === 'all' ? 'All' : t === 'copy' ? '📝 Copy' : '🎨 Visuals'}
+            </button>
+          ))}
+        </div>
+
+        {/* Output Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+          {filtered.map((o) => (
+            <div key={o.id} className="glass-card rounded-xl p-lg">
+              <h3 className="text-title-lg text-on-surface mb-md">{LABELS[o.type] || o.type}</h3>
+              {'content' in o ? (
+                <TextOutput output={o as TOut} idea={idea} onUpdate={updateText} />
+              ) : (
+                <ImageOutput output={o as IOut} idea={idea} onUpdate={updateImage} />
+              )}
+            </div>
+          ))}
+        </div>
+      </main>
     </div>
   );
 }
