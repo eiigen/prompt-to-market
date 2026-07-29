@@ -1,11 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getApiKey } from '../lib/auth';
 import { generateText, getImageUrl } from '../lib/pollinations';
 import { TEXT_PROMPTS, IMAGE_PROMPTS, IMAGE_ENHANCER_PROMPTS } from '../lib/prompts';
 import { saveToHistory, type HistoryEntry } from '../lib/history';
+import { getHistory, deleteHistoryEntry, clearHistory } from '../lib/history';
 import DownloadAll from '../components/DownloadAll';
-import Sidebar from '../components/Sidebar';
 import type { AnyOutput, TextOutput as TOut, ImageOutput as IOut } from '../lib/types';
 
 const TEXT_TYPES = ['positioning', 'landing', 'instagram', 'twitter', 'linkedin', 'faq'] as const;
@@ -52,7 +52,15 @@ export default function Results() {
   const [tab, setTab] = useState<'all' | 'copy' | 'visuals'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const savedRef = useRef(false);
+
+  useEffect(() => {
+    setHistory(getHistory());
+    const interval = setInterval(() => setHistory(getHistory()), 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const storedIdea = sessionStorage.getItem('product_idea');
@@ -64,7 +72,6 @@ export default function Results() {
     setTextModel(tm);
     setImageModel(im);
 
-    // Load from history
     const he = sessionStorage.getItem('history_entry');
     if (he) {
       try {
@@ -77,14 +84,12 @@ export default function Results() {
       } catch {}
     }
 
-    // Fresh generation
     const initial: AnyOutput[] = [
       ...TEXT_TYPES.map(t => ({ id: t, type: t as AnyOutput['type'], content: '', status: 'pending' as const })),
       ...IMAGE_TYPES.map(t => ({ id: t, type: t as AnyOutput['type'], url: '', ...IMAGE_SIZES[t], status: 'pending' as const })),
     ];
     setOutputs(initial);
 
-    // Generate text outputs in parallel
     TEXT_TYPES.forEach(async (type) => {
       const { system, user } = TEXT_PROMPTS[type](storedIdea);
       setOutputs(p => p.map(o => o.id === type ? { ...o, status: 'loading' } : o));
@@ -96,7 +101,6 @@ export default function Results() {
       }
     });
 
-    // Generate images with enhanced prompts
     IMAGE_TYPES.forEach(async (type) => {
       setOutputs(p => p.map(o => o.id === type ? { ...o, status: 'loading' } : o));
       try {
@@ -110,7 +114,6 @@ export default function Results() {
     });
   }, [navigate]);
 
-  // Save to history
   useEffect(() => {
     if (savedRef.current || outputs.length === 0) return;
     if (outputs.every(o => o.status === 'done')) {
@@ -161,177 +164,136 @@ export default function Results() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <Sidebar onLoad={handleLoadHistory} />
+      {/* Sidebar overlay — mobile only */}
+      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 z-40 bg-black/60" />}
+
+      {/* Sidebar */}
+      <aside className={`fixed top-0 left-0 h-full z-50 w-72 bg-zinc-900 border-r border-zinc-800 transform transition-transform duration-200 overflow-y-auto pt-16 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="p-6 pt-2">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-zinc-100">History</h2>
+            {history.length > 0 && (
+              <button onClick={() => { clearHistory(); setHistory([]); }} className="text-sm text-rose-500 hover:underline">Clear all</button>
+            )}
+          </div>
+          {history.length === 0 ? (
+            <p className="text-zinc-500 text-sm">No generations yet.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {history.map((h) => (
+                <div key={h.id} className="bg-zinc-800/50 hover:bg-zinc-800 rounded-md p-3 group relative transition-colors">
+                  <button onClick={() => { handleLoadHistory(h); setSidebarOpen(false); }} className="text-left w-full">
+                    <p className="text-sm font-medium text-zinc-100 truncate">{h.idea}</p>
+                    <p className="text-xs text-zinc-500 mt-1">{new Date(h.createdAt).toLocaleDateString()} · {h.outputs.length} outputs</p>
+                  </button>
+                  <button onClick={() => { deleteHistoryEntry(h.id); setHistory(getHistory()); }}
+                    className="absolute top-2 right-2 text-zinc-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs">✕</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </aside>
 
       {/* Progress bar */}
       <div className="fixed top-0 left-0 w-full z-[100] h-1 bg-zinc-800">
-        <div
-          className="h-full bg-emerald-500 transition-all duration-1000"
-          style={{ width: `${outputs.length ? (doneCount / outputs.length) * 100 : 0}%` }}
-        />
+        <div className="h-full bg-emerald-500 transition-all duration-1000" style={{ width: `${outputs.length ? (doneCount / outputs.length) * 100 : 0}%` }} />
       </div>
 
-      <div className="md:flex">
-        {/* Sidebar spacer on desktop */}
-        <div className="hidden md:block md:w-72 flex-shrink-0" />
+      <div className="md:pl-72">
+        {/* Top bar */}
+        <nav className="sticky top-1 z-30 bg-zinc-950 border-b border-zinc-800 flex justify-between items-center px-4 h-14">
+          <div className="flex items-center gap-2">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden text-zinc-400 hover:text-indigo-400 p-1.5 rounded-md hover:bg-zinc-800 transition-colors">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="3" y1="5" x2="17" y2="5" /><line x1="3" y1="10" x2="17" y2="10" /><line x1="3" y1="15" x2="17" y2="15" />
+              </svg>
+            </button>
+            <button onClick={() => navigate('/')} className="text-zinc-400 hover:text-zinc-100 transition-colors text-sm">← Back</button>
+          </div>
+          <span className="text-sm text-zinc-400 truncate max-w-md text-center" title={idea}>"{idea}"</span>
+          <DownloadAll outputs={outputs} idea={idea} />
+        </nav>
 
-        {/* Main content */}
-        <div className="flex-1 min-w-0">
-          {/* Top bar */}
-          <nav className="sticky top-1 z-50 bg-zinc-950 border-b border-zinc-800 flex justify-between items-center px-6 h-16">
-            <div className="flex items-center gap-3">
-              <Sidebar.Trigger />
-              <button
-                onClick={() => navigate('/')}
-                className="text-zinc-400 hover:text-zinc-100 transition-colors text-sm"
-              >
-                ← Back
+        <main className="px-4 md:px-6 py-6 max-w-5xl mx-auto">
+          {/* Filter tabs */}
+          <div className="flex items-center gap-6 border-b border-zinc-800 mb-6">
+            {([{ key: 'all' as const, label: `All (${outputs.length})` }, { key: 'copy' as const, label: `Copy (${TEXT_TYPES.length})` }, { key: 'visuals' as const, label: `Visuals (${IMAGE_TYPES.length})` }]).map(t => (
+              <button key={t.key} onClick={() => setTab(t.key)}
+                className={`pb-3 text-sm font-medium transition-colors border-b-2 ${tab === t.key ? 'text-indigo-400 border-indigo-400' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>
+                {t.label}
               </button>
-            </div>
-            <span className="text-sm text-zinc-400 truncate max-w-md text-center" title={idea}>
-              "{idea}"
-            </span>
-            <DownloadAll outputs={outputs} idea={idea} />
-          </nav>
+            ))}
+          </div>
 
-          {/* Content */}
-          <main className="px-6 py-8 max-w-5xl mx-auto">
-            {/* Filter tabs */}
-            <div className="flex items-center gap-6 border-b border-zinc-800 mb-6">
-              {([
-                { key: 'all' as const, label: `All (${outputs.length})` },
-                { key: 'copy' as const, label: `Copy (${TEXT_TYPES.length})` },
-                { key: 'visuals' as const, label: `Visuals (${IMAGE_TYPES.length})` },
-              ]).map(t => (
-                <button
-                  key={t.key}
-                  onClick={() => setTab(t.key)}
-                  className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
-                    tab === t.key
-                      ? 'text-indigo-400 border-indigo-400'
-                      : 'text-zinc-500 border-transparent hover:text-zinc-300'
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
+          {/* Results grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filtered.map(o => {
+              const m = META[o.id];
+              const isCopy = m.badge === 'copy';
+              const o2 = o as TOut;
+              const o3 = o as IOut;
+              const isExpanded = expandedId === o.id;
 
-            {/* Results grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filtered.map(o => {
-                const m = META[o.id];
-                const isCopy = m.badge === 'copy';
-                const o2 = o as TOut;
-                const o3 = o as IOut;
-                const isExpanded = expandedId === o.id;
-
-                return (
-                  <div key={o.id} className="bg-zinc-900 border border-zinc-800 rounded-md p-4 flex flex-col animate-fade-up" style={{ animationDelay: `${filtered.indexOf(o) * 60}ms` }}>
-                    {/* Badge */}
-                    <span className={`inline-block self-start px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-3 ${
-                      isCopy ? 'bg-indigo-500/10 text-indigo-400' : 'bg-zinc-800 text-zinc-400'
-                    }`}>
-                      {isCopy ? 'Copy' : 'Visual'}
-                    </span>
-
-                    <h3 className="text-zinc-100 font-medium mb-2">{m.label}</h3>
-
-                    {/* Content */}
-                    <div className="flex-grow mb-4">
-                      {o.status === 'loading' ? (
-                        <div className="h-24 bg-zinc-800 rounded animate-pulse" />
-                      ) : o.status === 'error' ? (
-                        <div className="flex items-center gap-3">
-                          <p className="text-rose-400 text-sm">{(o as any).error}</p>
-                          <button
-                            onClick={() => handleRegenerate(o.id)}
-                            className="text-xs text-indigo-400 hover:text-indigo-300 underline"
-                          >
-                            Retry
+              return (
+                <div key={o.id} className="bg-zinc-900 border border-zinc-800 rounded-md p-4 flex flex-col animate-fade-up" style={{ animationDelay: `${filtered.indexOf(o) * 60}ms` }}>
+                  <span className={`inline-block self-start px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-3 ${isCopy ? 'bg-indigo-500/10 text-indigo-400' : 'bg-zinc-800 text-zinc-400'}`}>
+                    {isCopy ? 'Copy' : 'Visual'}
+                  </span>
+                  <h3 className="text-zinc-100 font-medium mb-2">{m.label}</h3>
+                  <div className="flex-grow mb-4">
+                    {o.status === 'loading' ? (
+                      <div className="h-24 bg-zinc-800 rounded animate-pulse" />
+                    ) : o.status === 'error' ? (
+                      <div className="flex items-center gap-3">
+                        <p className="text-rose-400 text-sm">{(o as any).error}</p>
+                        <button onClick={() => handleRegenerate(o.id)} className="text-xs text-indigo-400 hover:text-indigo-300 underline">Retry</button>
+                      </div>
+                    ) : isCopy ? (
+                      <div>
+                        <p className={`text-zinc-400 text-sm whitespace-pre-wrap ${isExpanded ? '' : 'line-clamp-3'}`}>{o2.content}</p>
+                        {o2.content && o2.content.length > 150 && (
+                          <button onClick={() => setExpandedId(isExpanded ? null : o.id)} className="text-xs text-indigo-400 hover:text-indigo-300 mt-1 transition-colors">
+                            {isExpanded ? 'Show less' : 'Show more'}
                           </button>
-                        </div>
-                      ) : isCopy ? (
-                        <div>
-                          <p className={`text-zinc-400 text-sm whitespace-pre-wrap ${isExpanded ? '' : 'line-clamp-3'}`}>
-                            {o2.content}
-                          </p>
-                          {o2.content && o2.content.length > 150 && (
-                            <button
-                              onClick={() => setExpandedId(isExpanded ? null : o.id)}
-                              className="text-xs text-indigo-400 hover:text-indigo-300 mt-1 transition-colors"
-                            >
-                              {isExpanded ? 'Show less' : 'Show more'}
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="rounded-md overflow-hidden bg-zinc-800">
-                          {o3.url ? (
-                            <img src={o3.url} alt={o.id} className="w-full h-auto object-cover" loading="lazy" />
-                          ) : (
-                            <div className="w-full h-48 animate-pulse" />
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-2 pt-3 border-t border-zinc-800">
-                      {isCopy ? (
-                        <>
-                          <button
-                            onClick={() => handleCopy(o.id, o2.content)}
-                            className="flex-1 text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1"
-                          >
-                            {copiedId === o.id ? '✓ Copied' : 'Copy'}
-                          </button>
-                          <button
-                            onClick={() => handleRegenerate(o.id)}
-                            className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1"
-                          >
-                            Regenerate
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => handleRegenerate(o.id)}
-                            className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1"
-                          >
-                            Regenerate
-                          </button>
-                          {o3.url && (
-                            <a
-                              href={o3.url}
-                              download={`${idea}-${o.id}.jpg`}
-                              className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors py-1 ml-auto"
-                            >
-                              Download
-                            </a>
-                          )}
-                        </>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="rounded-md overflow-hidden bg-zinc-800">
+                        {o3.url ? <img src={o3.url} alt={o.id} className="w-full h-auto object-cover" loading="lazy" /> : <div className="w-full h-48 animate-pulse" />}
+                      </div>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          </main>
+                  <div className="flex gap-2 pt-3 border-t border-zinc-800">
+                    {isCopy ? (
+                      <>
+                        <button onClick={() => handleCopy(o.id, o2.content)} className="flex-1 text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1">{copiedId === o.id ? '✓ Copied' : 'Copy'}</button>
+                        <button onClick={() => handleRegenerate(o.id)} className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1">Regenerate</button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => handleRegenerate(o.id)} className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1">Regenerate</button>
+                        {o3.url && <a href={o3.url} download={`${idea}-${o.id}.jpg`} className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors py-1 ml-auto">Download</a>}
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </main>
 
-          {/* Footer */}
-          <footer className="border-t border-zinc-800 py-6 px-6 mt-auto">
-            <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-              <span className="text-sm font-semibold text-zinc-100">Prompt to Market</span>
-              <div className="flex gap-6">
-                <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">Privacy Policy</a>
-                <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">Terms of Service</a>
-                <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">API Docs</a>
-              </div>
-              <p className="text-xs text-zinc-500">© 2026 Prompt to Market</p>
+        <footer className="border-t border-zinc-800 py-6 px-6 mt-auto">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <span className="text-sm font-semibold text-zinc-100">Prompt to Market</span>
+            <div className="flex gap-6">
+              <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">Privacy Policy</a>
+              <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">Terms of Service</a>
+              <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">API Docs</a>
             </div>
-          </footer>
-        </div>
+            <p className="text-xs text-zinc-500">© 2026 Prompt to Market</p>
+          </div>
+        </footer>
       </div>
     </div>
   );
