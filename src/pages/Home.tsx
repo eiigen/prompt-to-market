@@ -67,7 +67,7 @@ export default function Home() {
             </section>
 
             {/* Feature pills */}
-            <div className="flex flex-wrap justify-center gap-3 mb-16 animate-fade-up [animation-delay:200ms]">
+            <div className="flex flex-wrap justify-center gap-3 mb-16 animate-fade-up [animation-delay:200ms] relative z-0">
               {['Landing Pages', 'Social Posts', 'Visual Assets'].map((f) => (
                 <span key={f} className="bg-zinc-900 border border-zinc-800 rounded-md px-4 py-2 text-sm text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-300">
                   {f}

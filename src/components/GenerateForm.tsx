@@ -71,7 +71,7 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
           {isLoading ? 'Generating...' : apiKey ? 'Generate Launch Kit' : 'Connect & Generate'}
         </button>
       </div>
-      <div className="flex flex-col sm:flex-row gap-3 px-1">
+      <div className="flex flex-col sm:flex-row gap-3 px-1 relative z-20">
         <div className="flex items-center gap-2 flex-1">
           <label className="text-sm text-zinc-400 whitespace-nowrap">Text:</label>
           <ModelSelect models={textModels} value={textModel} onChange={setTextModel} placeholder="Select text model" />
