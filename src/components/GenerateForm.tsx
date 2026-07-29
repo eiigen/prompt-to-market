@@ -7,6 +7,21 @@ interface Props {
   isLoading: boolean;
 }
 
+function InfoTip({ text, children }: { text: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-flex items-center">
+      <span onClick={() => setOpen(!open)} className="cursor-help">{children}</span>
+      {open && (
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 rounded bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-xs leading-relaxed z-50 shadow-lg"
+          onClick={() => setOpen(false)}>
+          {text}
+        </span>
+      )}
+    </span>
+  );
+}
+
 function ModelSelect({ models, value, onChange, placeholder }: { models: ModelInfo[]; value: string; onChange: (v: string) => void; placeholder: string }) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
@@ -73,11 +88,21 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
       </div>
       <div className="flex flex-col sm:flex-row gap-3 px-1 relative z-20">
         <div className="flex items-center gap-2 flex-1">
-          <label className="text-sm text-zinc-400 whitespace-nowrap">Text:</label>
+          <label className="text-sm text-zinc-400 whitespace-nowrap flex items-center gap-1">
+            Text:
+            <InfoTip text="Recommended: deepseek, deepseek-pro, glm, or any Kimi variants for best results.">
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-zinc-700 text-zinc-400 text-[10px] font-bold hover:bg-zinc-600 hover:text-zinc-200 transition-colors">!</span>
+            </InfoTip>
+          </label>
           <ModelSelect models={textModels} value={textModel} onChange={setTextModel} placeholder="Select text model" />
         </div>
         <div className="flex items-center gap-2 flex-1">
-          <label className="text-sm text-zinc-400 whitespace-nowrap">Image:</label>
+          <label className="text-sm text-zinc-400 whitespace-nowrap flex items-center gap-1">
+            Image:
+            <InfoTip text="Use a better image model — smaller ones aren't accurate. FLUX or larger models recommended.">
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-zinc-700 text-zinc-400 text-[10px] font-bold hover:bg-zinc-600 hover:text-zinc-200 transition-colors">!</span>
+            </InfoTip>
+          </label>
           <ModelSelect models={imageModels} value={imageModel} onChange={setImageModel} placeholder="Select image model" />
         </div>
       </div>

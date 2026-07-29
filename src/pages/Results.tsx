@@ -51,6 +51,7 @@ export default function Results() {
   const [imageModel, setImageModel] = useState('flux');
   const [tab, setTab] = useState<'all' | 'copy' | 'visuals'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const savedRef = useRef(false);
 
   useEffect(() => {
@@ -178,12 +179,15 @@ export default function Results() {
         <div className="flex-1 min-w-0">
           {/* Top bar */}
           <nav className="sticky top-1 z-50 bg-zinc-950 border-b border-zinc-800 flex justify-between items-center px-6 h-16">
-            <button
-              onClick={() => navigate('/')}
-              className="text-zinc-400 hover:text-zinc-100 transition-colors text-sm"
-            >
-              ← Back
-            </button>
+            <div className="flex items-center gap-3">
+              <Sidebar.Trigger />
+              <button
+                onClick={() => navigate('/')}
+                className="text-zinc-400 hover:text-zinc-100 transition-colors text-sm"
+              >
+                ← Back
+              </button>
+            </div>
             <span className="text-sm text-zinc-400 truncate max-w-md text-center" title={idea}>
               "{idea}"
             </span>
@@ -220,6 +224,7 @@ export default function Results() {
                 const isCopy = m.badge === 'copy';
                 const o2 = o as TOut;
                 const o3 = o as IOut;
+                const isExpanded = expandedId === o.id;
 
                 return (
                   <div key={o.id} className="bg-zinc-900 border border-zinc-800 rounded-md p-4 flex flex-col animate-fade-up" style={{ animationDelay: `${filtered.indexOf(o) * 60}ms` }}>
@@ -247,7 +252,19 @@ export default function Results() {
                           </button>
                         </div>
                       ) : isCopy ? (
-                        <p className="text-zinc-400 text-sm line-clamp-3 whitespace-pre-wrap">{o2.content}</p>
+                        <div>
+                          <p className={`text-zinc-400 text-sm whitespace-pre-wrap ${isExpanded ? '' : 'line-clamp-3'}`}>
+                            {o2.content}
+                          </p>
+                          {o2.content && o2.content.length > 150 && (
+                            <button
+                              onClick={() => setExpandedId(isExpanded ? null : o.id)}
+                              className="text-xs text-indigo-400 hover:text-indigo-300 mt-1 transition-colors"
+                            >
+                              {isExpanded ? 'Show less' : 'Show more'}
+                            </button>
+                          )}
+                        </div>
                       ) : (
                         <div className="rounded-md overflow-hidden bg-zinc-800">
                           {o3.url ? (
