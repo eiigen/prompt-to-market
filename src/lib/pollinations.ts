@@ -5,7 +5,7 @@ export async function generateText(
   userPrompt: string,
   apiKey: string,
   model = 'openai',
-  timeoutMs = 60000
+  timeoutMs = 90000
 ): Promise<string> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);

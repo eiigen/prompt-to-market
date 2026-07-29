@@ -50,6 +50,14 @@ Output only the Q&A, no extra text.`,
   }),
 };
 
+// Image prompt enhancer — generates detailed, specific prompts per image type
+export const IMAGE_ENHANCER_PROMPTS: Record<string, string> = {
+  hero: `You are a professional product photographer. Given a product idea, write ONE detailed image prompt for generating a hero/landing page image. The image should show the product concept in use, clean professional aesthetic, suitable for a SaaS landing page. Include: subject, setting, lighting, style, mood, color palette. Output only the prompt, 30-50 words.`,
+  logo: `You are a professional brand designer. Given a product idea, write ONE detailed image prompt for generating logo variations. The image should show 3 logo styles: minimal line icon, bold typographic, playful illustrated. Include: layout (grid), background color, style descriptions. Output only the prompt, 30-50 words.`,
+  'social-image': `You are a social media graphic designer. Given a product idea, write ONE detailed image prompt for generating an Instagram post image. The image should be square, visually striking, with product concept and brand elements. Include: style, mood, colors, composition. Output only the prompt, 30-50 words.`,
+  og: `You are a marketing designer. Given a product idea, write ONE detailed image prompt for generating an Open Graph image (1200x630). The image should be wide-format, professional, with space for text overlay. Include: style, mood, colors, composition. Output only the prompt, 30-50 words.`,
+};
+
 export const IMAGE_PROMPTS: Record<string, (idea: string) => string> = {
   hero: (idea) => `Professional product photography of ${idea}. Clean white background. Modern minimal style. Studio lighting. High quality. 4k.`,
   logo: (idea) => `Three logo designs for ${idea}. Top: minimal line icon. Middle: bold typographic. Bottom: playful illustrated. White background. Grid layout. Professional branding.`,

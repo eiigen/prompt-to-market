@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getApiKey } from '../lib/auth';
 import { generateText, getImageUrl } from '../lib/pollinations';
-import { TEXT_PROMPTS, IMAGE_PROMPTS } from '../lib/prompts';
+import { TEXT_PROMPTS, IMAGE_PROMPTS, IMAGE_ENHANCER_PROMPTS } from '../lib/prompts';
 import { saveToHistory, type HistoryEntry } from '../lib/history';
 import DownloadAll from '../components/DownloadAll';
 import Sidebar from '../components/Sidebar';
@@ -84,6 +84,7 @@ export default function Results() {
     ];
     setOutputs(initial);
 
+    // Generate text outputs in parallel
     TEXT_TYPES.forEach(async (type) => {
       const { system, user } = TEXT_PROMPTS[type](storedIdea);
       setOutputs(p => p.map(o => o.id === type ? { ...o, status: 'loading' } : o));
@@ -95,9 +96,19 @@ export default function Results() {
       }
     });
 
-    IMAGE_TYPES.forEach((type) => {
-      const url = getImageUrl(IMAGE_PROMPTS[type](storedIdea), IMAGE_SIZES[type].width, IMAGE_SIZES[type].height, im, apiKey);
-      setOutputs(p => p.map(o => o.id === type ? { ...o, url, status: 'done' } : o));
+    // Generate images with enhanced prompts
+    IMAGE_TYPES.forEach(async (type) => {
+      setOutputs(p => p.map(o => o.id === type ? { ...o, status: 'loading' } : o));
+      try {
+        // Enhance prompt via text API first
+        const enhancedPrompt = await generateText(IMAGE_ENHANCER_PROMPTS[type], storedIdea, apiKey, tm);
+        const url = getImageUrl(enhancedPrompt, IMAGE_SIZES[type].width, IMAGE_SIZES[type].height, im, apiKey);
+        setOutputs(p => p.map(o => o.id === type ? { ...o, url, status: 'done' } : o));
+      } catch {
+        // Fallback: use static prompt
+        const url = getImageUrl(IMAGE_PROMPTS[type](storedIdea), IMAGE_SIZES[type].width, IMAGE_SIZES[type].height, im, apiKey);
+        setOutputs(p => p.map(o => o.id === type ? { ...o, url, status: 'done' } : o));
+      }
     });
   }, [navigate]);
 
@@ -133,8 +144,15 @@ export default function Results() {
       try { const c = await generateText(system, user, apiKey, textModel); setOutputs(p => p.map(o => o.id === id ? { ...o, content: c, status: 'done' } : o)); }
       catch (e: any) { setOutputs(p => p.map(o => o.id === id ? { ...o, status: 'error', error: e.message } : o)); }
     } else {
-      const url = getImageUrl(IMAGE_PROMPTS[id](idea), IMAGE_SIZES[id].width, IMAGE_SIZES[id].height, imageModel, apiKey);
-      setOutputs(p => p.map(o => o.id === id ? { ...o, url, status: 'done' } : o));
+      setOutputs(p => p.map(o => o.id === id ? { ...o, status: 'loading' } : o));
+      try {
+        const enhanced = await generateText(IMAGE_ENHANCER_PROMPTS[id], idea, apiKey, textModel);
+        const url = getImageUrl(enhanced, IMAGE_SIZES[id].width, IMAGE_SIZES[id].height, imageModel, apiKey);
+        setOutputs(p => p.map(o => o.id === id ? { ...o, url, status: 'done' } : o));
+      } catch {
+        const url = getImageUrl(IMAGE_PROMPTS[id](idea), IMAGE_SIZES[id].width, IMAGE_SIZES[id].height, imageModel, apiKey);
+        setOutputs(p => p.map(o => o.id === id ? { ...o, url, status: 'done' } : o));
+      }
     }
   };
 
