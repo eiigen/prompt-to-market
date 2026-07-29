@@ -24,7 +24,7 @@ function InfoTip({ text, children }: { text: string; children: React.ReactNode }
     <span ref={ref} className="relative inline-flex items-center">
       <span onClick={() => setOpen(!open)} className="cursor-pointer">{children}</span>
       {open && (
-        <span className="absolute bottom-full right-0 mb-2 w-56 max-w-[90vw] p-3 rounded-md bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-xs leading-relaxed z-50 shadow-lg break-words overflow-hidden">
+        <span className="absolute bottom-full left-0 mb-2 w-52 max-w-[85vw] p-3 rounded-md bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-xs leading-relaxed z-50 shadow-lg break-words whitespace-normal">
           {text}
         </span>
       )}
