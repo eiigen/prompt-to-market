@@ -67,7 +67,7 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
           className="flex-1 bg-zinc-900 border border-zinc-700 rounded-md text-zinc-100 px-4 py-3 text-base placeholder:text-zinc-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
           disabled={isLoading} />
         <button type="submit" disabled={isLoading || !idea.trim()}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-md px-6 py-3 font-medium transition-colors disabled:opacity-50 whitespace-nowrap">
+          className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-md px-6 py-3 font-medium transition-all duration-200 disabled:opacity-50 whitespace-nowrap hover:shadow-lg hover:shadow-indigo-500/20 hover:-translate-y-0.5 active:translate-y-0">
           {isLoading ? 'Generating...' : apiKey ? 'Generate Launch Kit' : 'Connect & Generate'}
         </button>
       </div>

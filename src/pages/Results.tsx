@@ -222,7 +222,7 @@ export default function Results() {
                 const o3 = o as IOut;
 
                 return (
-                  <div key={o.id} className="bg-zinc-900 border border-zinc-800 rounded-md p-4 flex flex-col">
+                  <div key={o.id} className="bg-zinc-900 border border-zinc-800 rounded-md p-4 flex flex-col animate-fade-up" style={{ animationDelay: `${filtered.indexOf(o) * 60}ms` }}>
                     {/* Badge */}
                     <span className={`inline-block self-start px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-3 ${
                       isCopy ? 'bg-indigo-500/10 text-indigo-400' : 'bg-zinc-800 text-zinc-400'

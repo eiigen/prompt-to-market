@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { getHistory, deleteHistoryEntry, clearHistory, type HistoryEntry } from '../lib/history';
+
+const SidebarCtx = createContext<{ open: boolean; setOpen: (v: boolean) => void }>({ open: false, setOpen: () => {} });
 
 interface Props {
   onLoad: (entry: HistoryEntry) => void;
 }
 
-export default function Sidebar({ onLoad }: Props) {
-  const [open, setOpen] = useState(false);
+function SidebarInner({ onLoad }: Props) {
+  const { open, setOpen } = useContext(SidebarCtx);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
@@ -17,14 +19,10 @@ export default function Sidebar({ onLoad }: Props) {
 
   return (
     <>
-      <button onClick={() => setOpen(!open)} className="md:hidden fixed top-5 left-4 z-50 text-zinc-400 hover:text-indigo-400 p-2 text-xl">
-        ☰
-      </button>
-
       {open && <div onClick={() => setOpen(false)} className="md:hidden fixed inset-0 z-40 bg-black/60" />}
 
-      <aside className={`fixed md:sticky md:top-20 left-0 h-full z-50 w-72 bg-zinc-900 border-r border-zinc-800 transform transition-transform duration-200 overflow-y-auto ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:block`}>
-        <div className="p-6 pt-16 md:pt-6">
+      <aside className={`fixed md:sticky md:top-16 left-0 h-[calc(100vh-4rem)] z-50 w-72 bg-zinc-900 border-r border-zinc-800 transform transition-transform duration-200 overflow-y-auto ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:block`}>
+        <div className="p-6 pt-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-zinc-100">History</h2>
             {history.length > 0 && (
@@ -57,3 +55,23 @@ export default function Sidebar({ onLoad }: Props) {
     </>
   );
 }
+
+function Trigger() {
+  const { open, setOpen } = useContext(SidebarCtx);
+  return (
+    <button onClick={() => setOpen(!open)} className="text-zinc-400 hover:text-indigo-400 p-2 text-xl transition-colors">
+      ☰
+    </button>
+  );
+}
+
+export default function Sidebar({ onLoad }: Props) {
+  const [open, setOpen] = useState(false);
+  return (
+    <SidebarCtx.Provider value={{ open, setOpen }}>
+      <SidebarInner onLoad={onLoad} />
+    </SidebarCtx.Provider>
+  );
+}
+
+Sidebar.Trigger = Trigger;
