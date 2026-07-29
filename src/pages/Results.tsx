@@ -16,22 +16,32 @@ const IMAGE_SIZES: Record<string, { width: number; height: number }> = {
   'social-image': { width: 1080, height: 1080 },
   og: { width: 1200, height: 630 },
 };
-const LABELS: Record<string, string> = {
-  positioning: 'Positioning',
-  landing: 'Landing Page H1',
-  instagram: 'Instagram Caption',
-  twitter: 'Twitter Thread',
-  linkedin: 'LinkedIn Post',
-  faq: 'Founder FAQ',
-  hero: 'Hero Image',
-  logo: 'Logo Mark',
-  'social-image': 'Social Post Grid',
-  og: 'OG Image',
-};
-const ICONS: Record<string, string> = {
-  positioning: 'description', landing: 'web', instagram: 'share', twitter: 'tag',
-  linkedin: 'work', faq: 'help', hero: 'image', logo: 'diamond',
-  'social-image': 'grid_view', og: 'language',
+
+// Bento order + span config — matches Stitch exactly
+const BENTO: { id: string; span: string }[] = [
+  { id: 'hero', span: 'lg:col-span-2' },
+  { id: 'positioning', span: '' },
+  { id: 'landing', span: '' },
+  { id: 'logo', span: '' },
+  { id: 'instagram', span: '' },
+  { id: 'social-image', span: 'lg:col-span-2' },
+  { id: 'twitter', span: '' },
+  { id: 'linkedin', span: '' },
+  { id: 'og', span: '' },
+  { id: 'faq', span: '' },
+];
+
+const META: Record<string, { label: string; badge: 'copy' | 'visual'; icon: string }> = {
+  positioning: { label: 'Positioning', badge: 'copy', icon: 'description' },
+  landing: { label: 'Landing Page H1', badge: 'copy', icon: 'web' },
+  instagram: { label: 'Instagram Caption', badge: 'copy', icon: 'share' },
+  twitter: { label: 'Twitter Thread', badge: 'copy', icon: 'tag' },
+  linkedin: { label: 'LinkedIn Post', badge: 'copy', icon: 'work' },
+  faq: { label: 'Founder FAQ', badge: 'copy', icon: 'help' },
+  hero: { label: 'Hero Image', badge: 'visual', icon: 'image' },
+  logo: { label: 'Logo Mark', badge: 'visual', icon: 'diamond' },
+  'social-image': { label: 'Social Post Grid', badge: 'visual', icon: 'grid_view' },
+  og: { label: 'OG Image', badge: 'visual', icon: 'language' },
 };
 
 export default function Results() {
@@ -47,25 +57,21 @@ export default function Results() {
   useEffect(() => {
     const storedIdea = sessionStorage.getItem('product_idea');
     const apiKey = getApiKey();
-    const storedTextModel = sessionStorage.getItem('text_model') || 'openai';
-    const storedImageModel = sessionStorage.getItem('image_model') || 'flux';
+    const tm = sessionStorage.getItem('text_model') || 'openai';
+    const im = sessionStorage.getItem('image_model') || 'flux';
     if (!storedIdea || !apiKey) { navigate('/'); return; }
     setIdea(storedIdea);
-    setTextModel(storedTextModel);
-    setImageModel(storedImageModel);
+    setTextModel(tm);
+    setImageModel(im);
 
-    // Check if loading from history
-    const historyEntry = sessionStorage.getItem('history_entry');
-    if (historyEntry) {
+    // Load from history
+    const he = sessionStorage.getItem('history_entry');
+    if (he) {
       try {
-        const entry: HistoryEntry = JSON.parse(historyEntry);
-        const restored: AnyOutput[] = entry.outputs.map(o => {
-          if (TEXT_TYPES.includes(o.type as any)) {
-            return { id: o.id, type: o.type as AnyOutput['type'], content: o.content || '', status: 'done' as const };
-          }
-          return { id: o.id, type: o.type as AnyOutput['type'], url: o.url || '', ...IMAGE_SIZES[o.id], status: 'done' as const };
-        });
-        setOutputs(restored);
+        const entry: HistoryEntry = JSON.parse(he);
+        setOutputs(entry.outputs.map(o => TEXT_TYPES.includes(o.type as any)
+          ? { id: o.id, type: o.type as AnyOutput['type'], content: o.content || '', status: 'done' as const }
+          : { id: o.id, type: o.type as AnyOutput['type'], url: o.url || '', ...IMAGE_SIZES[o.id], status: 'done' as const }));
         sessionStorage.removeItem('history_entry');
         return;
       } catch {}
@@ -73,48 +79,36 @@ export default function Results() {
 
     // Fresh generation
     const initial: AnyOutput[] = [
-      ...TEXT_TYPES.map((t) => ({ id: t, type: t as AnyOutput['type'], content: '', status: 'pending' as const })),
-      ...IMAGE_TYPES.map((t) => ({ id: t, type: t as AnyOutput['type'], url: '', ...IMAGE_SIZES[t], status: 'pending' as const })),
+      ...TEXT_TYPES.map(t => ({ id: t, type: t as AnyOutput['type'], content: '', status: 'pending' as const })),
+      ...IMAGE_TYPES.map(t => ({ id: t, type: t as AnyOutput['type'], url: '', ...IMAGE_SIZES[t], status: 'pending' as const })),
     ];
     setOutputs(initial);
 
     TEXT_TYPES.forEach(async (type) => {
       const { system, user } = TEXT_PROMPTS[type](storedIdea);
-      setOutputs((prev) => prev.map((o) => o.id === type ? { ...o, status: 'loading' } : o));
+      setOutputs(p => p.map(o => o.id === type ? { ...o, status: 'loading' } : o));
       try {
-        const content = await generateText(system, user, apiKey, storedTextModel);
-        setOutputs((prev) => prev.map((o) => o.id === type ? { ...o, content, status: 'done' } : o));
+        const content = await generateText(system, user, apiKey, tm);
+        setOutputs(p => p.map(o => o.id === type ? { ...o, content, status: 'done' } : o));
       } catch (err: any) {
-        setOutputs((prev) => prev.map((o) => o.id === type ? { ...o, status: 'error', error: err.message } : o));
+        setOutputs(p => p.map(o => o.id === type ? { ...o, status: 'error', error: err.message } : o));
       }
     });
 
     IMAGE_TYPES.forEach((type) => {
-      const prompt = IMAGE_PROMPTS[type](storedIdea);
-      const { width, height } = IMAGE_SIZES[type];
-      const url = getImageUrl(prompt, width, height, storedImageModel);
-      setOutputs((prev) => prev.map((o) => o.id === type ? { ...o, url, status: 'done' } : o));
+      const url = getImageUrl(IMAGE_PROMPTS[type](storedIdea), IMAGE_SIZES[type].width, IMAGE_SIZES[type].height, im);
+      setOutputs(p => p.map(o => o.id === type ? { ...o, url, status: 'done' } : o));
     });
   }, [navigate]);
 
-  // Save to history when all done
+  // Save to history
   useEffect(() => {
-    if (savedRef.current) return;
-    const doneCount = outputs.filter(o => o.status === 'done').length;
-    if (outputs.length > 0 && doneCount === outputs.length) {
+    if (savedRef.current || outputs.length === 0) return;
+    if (outputs.every(o => o.status === 'done')) {
       savedRef.current = true;
       saveToHistory({
-        id: Date.now().toString(),
-        idea,
-        textModel,
-        imageModel,
-        createdAt: Date.now(),
-        outputs: outputs.map(o => ({
-          id: o.id,
-          type: o.type,
-          content: 'content' in o ? (o as TOut).content : undefined,
-          url: 'url' in o ? (o as IOut).url : undefined,
-        })),
+        id: Date.now().toString(), idea, textModel, imageModel, createdAt: Date.now(),
+        outputs: outputs.map(o => ({ id: o.id, type: o.type, content: 'content' in o ? (o as TOut).content : undefined, url: 'url' in o ? (o as IOut).url : undefined })),
       });
     }
   }, [outputs, idea, textModel, imageModel]);
@@ -128,131 +122,148 @@ export default function Results() {
     window.location.reload();
   };
 
-  const handleCopy = (id: string, text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+  const handleCopy = (id: string, text: string) => { navigator.clipboard.writeText(text); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); };
 
   const handleRegenerate = async (id: string) => {
     const apiKey = getApiKey();
     if (!apiKey) return;
     if (TEXT_TYPES.includes(id as any)) {
       const { system, user } = TEXT_PROMPTS[id](idea);
-      setOutputs((prev) => prev.map((o) => o.id === id ? { ...o, status: 'loading' } : o));
-      try {
-        const content = await generateText(system, user, apiKey, textModel);
-        setOutputs((prev) => prev.map((o) => o.id === id ? { ...o, content, status: 'done' } : o));
-      } catch (err: any) {
-        setOutputs((prev) => prev.map((o) => o.id === id ? { ...o, status: 'error', error: err.message } : o));
-      }
+      setOutputs(p => p.map(o => o.id === id ? { ...o, status: 'loading' } : o));
+      try { const c = await generateText(system, user, apiKey, textModel); setOutputs(p => p.map(o => o.id === id ? { ...o, content: c, status: 'done' } : o)); }
+      catch (e: any) { setOutputs(p => p.map(o => o.id === id ? { ...o, status: 'error', error: e.message } : o)); }
     } else {
-      const prompt = IMAGE_PROMPTS[id](idea);
-      const { width, height } = IMAGE_SIZES[id];
-      const url = getImageUrl(prompt, width, height, imageModel);
-      setOutputs((prev) => prev.map((o) => o.id === id ? { ...o, url, status: 'done' } : o));
+      const url = getImageUrl(IMAGE_PROMPTS[id](idea), IMAGE_SIZES[id].width, IMAGE_SIZES[id].height, imageModel);
+      setOutputs(p => p.map(o => o.id === id ? { ...o, url, status: 'done' } : o));
     }
   };
 
-  const doneCount = outputs.filter((o) => o.status === 'done').length;
-  const isCopy = (id: string) => TEXT_TYPES.includes(id as any);
-  const bentoOrder = ['hero', 'positioning', 'landing', 'logo', 'instagram', 'social-image', 'twitter', 'linkedin', 'og', 'faq'];
-  const ordered = tab === 'all'
-    ? bentoOrder.map(id => outputs.find(o => o.id === id)).filter(Boolean) as AnyOutput[]
-    : tab === 'copy' ? outputs.filter(o => TEXT_TYPES.includes(o.type as any)) : outputs.filter(o => IMAGE_TYPES.includes(o.type as any));
-  const getSpan = (id: string) => tab !== 'all' ? '' : (id === 'hero' || id === 'social-image') ? 'md:col-span-2' : '';
+  const doneCount = outputs.filter(o => o.status === 'done').length;
+  const filtered = tab === 'all' ? BENTO.map(b => outputs.find(o => o.id === b.id)).filter(Boolean) as AnyOutput[]
+    : tab === 'copy' ? outputs.filter(o => TEXT_TYPES.includes(o.type as any))
+    : outputs.filter(o => IMAGE_TYPES.includes(o.type as any));
+
+  const getSpan = (id: string) => tab !== 'all' ? '' : BENTO.find(b => b.id === id)?.span || '';
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface">
+    <div className="min-h-screen bg-background text-on-background">
       <Sidebar onLoad={handleLoadHistory} />
 
+      {/* Progress bar */}
       <div className="fixed top-0 left-0 w-full z-[100] h-1 bg-surface-container-high">
         <div className="h-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all duration-1000"
           style={{ width: `${outputs.length ? (doneCount / outputs.length) * 100 : 0}%` }} />
         {doneCount === outputs.length && outputs.length > 0 && (
           <div className="absolute top-1 left-12 bg-surface-container-lowest px-2 py-0.5 rounded-b-md border-x border-b border-outline-variant">
-            <span className="text-[10px] font-bold text-[#10b981] uppercase tracking-wider">All {outputs.length} assets ready</span>
+            <span className="text-[10px] font-label-sm text-[#10b981] uppercase tracking-wider">All {outputs.length} assets ready</span>
           </div>
         )}
       </div>
 
-      <nav className="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant flex justify-between items-center px-xl h-20 max-w-container-max mx-auto">
+      {/* Top Nav — exact Stitch */}
+      <nav className="fixed top-1 w-full z-50 bg-surface border-b border-outline-variant flex justify-between items-center px-xl h-20 max-w-container-max mx-auto">
         <div className="w-10" />
-        <button onClick={() => navigate('/')} className="text-display-md font-bold text-primary">Prompt to Market</button>
+        <span className="font-display-md text-display-md text-primary">Prompt to Market</span>
         <DownloadAll outputs={outputs} idea={idea} />
       </nav>
 
+      {/* Main — exact Stitch bento */}
       <main className="pt-32 pb-2xl px-xl max-w-container-max mx-auto">
-        <header className="mb-xl">
-          <h1 className="text-display-md text-on-surface mb-2">Your Marketing Kit is Ready</h1>
-          <p className="text-on-surface-variant text-body-lg">Generated based on: "{idea}"</p>
+        <header className="flex flex-col md:flex-row justify-between items-end mb-xl gap-lg">
+          <div>
+            <h1 className="font-display-md text-display-md text-on-surface mb-2">Your Marketing Kit is Ready</h1>
+            <p className="text-on-surface-variant font-body-lg text-body-lg">Generated based on: "{idea}"</p>
+          </div>
         </header>
 
+        {/* Tabs — exact Stitch */}
         <div className="flex items-center gap-xl border-b border-outline-variant mb-xl">
           {[
-            { key: 'all', label: `All (${outputs.length})` },
-            { key: 'copy', label: `Copy (${TEXT_TYPES.length})` },
-            { key: 'visuals', label: `Visuals (${IMAGE_TYPES.length})` },
-          ].map((t) => (
-            <button key={t.key} onClick={() => setTab(t.key as any)}
-              className={`text-label-md pb-4 px-2 transition-all ${tab === t.key ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}>
+            { key: 'all' as const, label: `All (${outputs.length})` },
+            { key: 'copy' as const, label: `Copy (${TEXT_TYPES.length})` },
+            { key: 'visuals' as const, label: `Visuals (${IMAGE_TYPES.length})` },
+          ].map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={`font-label-md text-label-md pb-4 px-2 transition-all ${tab === t.key ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}>
               {t.label}
             </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg">
-          {ordered.map((o) => {
-            const copy = isCopy(o.id);
+        {/* Bento Grid — exact Stitch, scrollable on mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg overflow-x-auto">
+          {filtered.map(o => {
+            const m = META[o.id];
+            const isCopy = m.badge === 'copy';
             const o2 = o as TOut;
             const o3 = o as IOut;
+
             return (
               <div key={o.id} className={`glass-card rounded-xl p-lg flex flex-col hover:border-primary transition-all ${getSpan(o.id)}`}>
+                {/* Badge row */}
                 <div className="flex justify-between items-start mb-md">
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${copy ? 'bg-primary/10 text-primary' : 'bg-tertiary-container text-on-tertiary-container'}`}>
-                    {copy ? 'Copy' : 'Visuals'}
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${isCopy ? 'bg-primary/10 text-primary' : 'bg-tertiary-container text-on-tertiary-container'}`}>
+                    {isCopy ? 'Copy' : 'Visuals'}
                   </span>
-                  <span className="text-on-surface-variant text-xl material-symbols-outlined">{ICONS[o.id]}</span>
+                  <span className="material-symbols-outlined text-on-surface-variant text-xl">{m.icon}</span>
                 </div>
-                <h3 className="text-headline-md mb-2">{LABELS[o.id]}</h3>
+
+                <h3 className="font-headline-md text-headline-md mb-2">{m.label}</h3>
+
+                {/* Content */}
                 <div className="flex-grow">
                   {o.status === 'loading' ? <div className="h-24 bg-surface-container rounded animate-pulse" />
-                   : o.status === 'error' ? <p className="text-error text-sm">{(o as any).error}</p>
-                   : copy ? (
+                  : o.status === 'error' ? <p className="text-error text-sm">{(o as any).error}</p>
+                  : isCopy ? (
                     o.id === 'landing' ? (
-                      <div className="bg-surface-container-lowest p-md rounded-lg border border-outline-variant italic text-primary-fixed">
-                        {o2.content.split('\n').find(l => l.toLowerCase().startsWith('headline:'))?.replace(/^headline:\s*/i, '') || o2.content.split('\n')[0]}
+                      <div className="bg-surface-container-lowest p-md rounded-lg border border-outline-variant italic text-primary-fixed mb-lg">
+                        "{o2.content.split('\n').find(l => l.toLowerCase().startsWith('headline:'))?.replace(/^headline:\s*/i, '') || o2.content.split('\n')[0]}"
                       </div>
                     ) : o.id === 'faq' ? (
-                      <p className="text-on-surface-variant text-body-md line-clamp-4 whitespace-pre-wrap">{o2.content}</p>
+                      <p className="text-on-surface-variant font-body-md text-body-md line-clamp-4 whitespace-pre-wrap">{o2.content}</p>
                     ) : (
-                      <p className="text-on-surface-variant text-body-md line-clamp-4">{o2.content}</p>
+                      <p className="text-on-surface-variant font-body-md text-body-md line-clamp-4">{o2.content}</p>
                     )
+                  ) : o.id === 'social-image' ? (
+                    <div className="grid grid-cols-3 gap-sm mb-md">
+                      {[1,2,3].map(i => (
+                        <div key={i} className="aspect-square bg-surface-container rounded border border-outline-variant overflow-hidden">
+                          {o3.url ? <img src={o3.url} alt={`${o.id}-${i}`} className="w-full h-full object-cover" loading="lazy" /> : <div className="w-full h-full animate-pulse" />}
+                        </div>
+                      ))}
+                    </div>
+                  ) : o.id === 'logo' ? (
+                    <div className="aspect-square bg-surface-container-high rounded-lg mb-md flex items-center justify-center border border-outline-variant">
+                      {o3.url ? <img src={o3.url} alt={o.id} className="w-24 h-24 object-contain" loading="lazy" /> : <div className="w-24 h-24 animate-pulse rounded" />}
+                    </div>
                   ) : (
-                    <div className={`${o.id === 'social-image' ? 'grid grid-cols-3 gap-sm' : 'aspect-square'} bg-surface-container rounded-lg overflow-hidden`}>
-                      {o.id === 'social-image' ? (
-                        [1,2,3].map(i => (
-                          <div key={i} className="aspect-square bg-surface-container-high rounded border border-outline-variant overflow-hidden">
-                            {o3.url ? <img src={o3.url} alt={`${o.id}-${i}`} className="w-full h-full object-cover" loading="lazy" /> : <div className="w-full h-full animate-pulse" />}
-                          </div>
-                        ))
-                      ) : o3.url ? <img src={o3.url} alt={o.id} className="w-full h-full object-cover" loading="lazy" /> : <div className="w-full h-full bg-surface-container-high animate-pulse" />}
+                    <div className="relative h-48 bg-surface-container rounded-lg overflow-hidden mb-md">
+                      {o3.url ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${o3.url})` }} /> : <div className="absolute inset-0 animate-pulse" />}
                     </div>
                   )}
                 </div>
+
+                {/* Actions — exact Stitch */}
                 <div className="mt-lg flex gap-sm pt-md border-t border-outline-variant">
-                  {copy ? (
+                  {isCopy ? (
                     <>
                       <button onClick={() => handleCopy(o.id, o2.content)}
-                        className="flex-1 bg-surface-container-high text-on-surface text-label-md py-2 rounded-lg flex items-center justify-center gap-xs hover:bg-surface-variant transition-colors">
+                        className="flex-1 bg-surface-container-high text-on-surface font-label-md text-label-md py-2 rounded-lg flex items-center justify-center gap-xs hover:bg-surface-variant transition-colors">
                         {copiedId === o.id ? '✓ Copied!' : 'Copy'}
                       </button>
-                      <button onClick={() => handleRegenerate(o.id)} className="w-12 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center hover:brightness-110">↻</button>
+                      <button onClick={() => handleRegenerate(o.id)}
+                        className="w-12 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center hover:brightness-110">↻</button>
                     </>
                   ) : (
                     <>
-                      <button onClick={() => handleRegenerate(o.id)} className="flex-1 bg-surface-container-high text-on-surface text-label-md py-2 rounded-lg hover:bg-surface-variant transition-colors">Regenerate</button>
-                      {o3.url && <a href={o3.url} download={`${idea}-${o.id}.jpg`} className="bg-primary text-on-primary px-lg py-2 rounded-lg text-label-md flex items-center gap-xs hover:brightness-110">Download</a>}
+                      <button onClick={() => handleRegenerate(o.id)}
+                        className="flex-1 bg-surface-container-high text-on-surface font-label-md text-label-md py-2 rounded-lg hover:bg-surface-variant transition-colors">Regenerate</button>
+                      {o3.url && (
+                        <a href={o3.url} download={`${idea}-${o.id}.jpg`}
+                          className="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md flex items-center gap-xs hover:brightness-110">
+                          Download
+                        </a>
+                      )}
                     </>
                   )}
                 </div>
@@ -262,10 +273,16 @@ export default function Results() {
         </div>
       </main>
 
+      {/* Footer — exact Stitch */}
       <footer className="bg-surface-container-lowest border-t border-outline-variant w-full mt-auto">
         <div className="flex flex-col md:flex-row justify-between items-center px-xl py-lg max-w-container-max mx-auto">
-          <span className="text-title-lg text-on-surface">Prompt to Market</span>
-          <p className="text-label-sm text-on-surface-variant opacity-80">© 2026 Prompt to Market.</p>
+          <span className="font-title-lg text-title-lg text-on-surface mb-md md:mb-0">Prompt to Market</span>
+          <div className="flex gap-lg flex-wrap justify-center mb-md md:mb-0">
+            <a className="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">Privacy Policy</a>
+            <a className="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">Terms of Service</a>
+            <a className="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">API Docs</a>
+          </div>
+          <p className="font-label-sm text-label-sm text-on-surface-variant opacity-80">© 2026 Prompt to Market. All rights reserved.</p>
         </div>
       </footer>
     </div>
