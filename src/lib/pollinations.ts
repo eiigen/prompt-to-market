@@ -39,7 +39,15 @@ export async function generateText(
   }
 }
 
-export function getImageUrl(prompt: string, width: number, height: number, model = 'flux'): string {
+export function getImageUrl(prompt: string, width: number, height: number, model = 'flux', apiKey = ''): string {
   const encoded = encodeURIComponent(prompt);
-  return `${BASE_URL}/image/${encoded}?model=${model}&width=${width}&height=${height}&nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
+  const params = new URLSearchParams({
+    model,
+    width: String(width),
+    height: String(height),
+    nologo: 'true',
+    seed: String(Math.floor(Math.random() * 100000)),
+  });
+  if (apiKey) params.set('key', apiKey);
+  return `${BASE_URL}/image/${encoded}?${params.toString()}`;
 }

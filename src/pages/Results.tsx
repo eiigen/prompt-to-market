@@ -96,7 +96,7 @@ export default function Results() {
     });
 
     IMAGE_TYPES.forEach((type) => {
-      const url = getImageUrl(IMAGE_PROMPTS[type](storedIdea), IMAGE_SIZES[type].width, IMAGE_SIZES[type].height, im);
+      const url = getImageUrl(IMAGE_PROMPTS[type](storedIdea), IMAGE_SIZES[type].width, IMAGE_SIZES[type].height, im, apiKey);
       setOutputs(p => p.map(o => o.id === type ? { ...o, url, status: 'done' } : o));
     });
   }, [navigate]);
@@ -133,7 +133,7 @@ export default function Results() {
       try { const c = await generateText(system, user, apiKey, textModel); setOutputs(p => p.map(o => o.id === id ? { ...o, content: c, status: 'done' } : o)); }
       catch (e: any) { setOutputs(p => p.map(o => o.id === id ? { ...o, status: 'error', error: e.message } : o)); }
     } else {
-      const url = getImageUrl(IMAGE_PROMPTS[id](idea), IMAGE_SIZES[id].width, IMAGE_SIZES[id].height, imageModel);
+      const url = getImageUrl(IMAGE_PROMPTS[id](idea), IMAGE_SIZES[id].width, IMAGE_SIZES[id].height, imageModel, apiKey);
       setOutputs(p => p.map(o => o.id === id ? { ...o, url, status: 'done' } : o));
     }
   };
