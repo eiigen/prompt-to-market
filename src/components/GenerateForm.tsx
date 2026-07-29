@@ -109,7 +109,7 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
         <div className="flex items-center gap-2 flex-1">
           <label className="text-sm text-zinc-400 whitespace-nowrap flex items-center gap-1">
             Image:
-            <InfoTip text="Use a better image model — smaller ones aren't accurate. FLUX or larger models recommended.">
+            <InfoTip text="Use better image model as small ones aren't accurate">
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-zinc-700 text-zinc-300 text-[11px] font-bold hover:bg-zinc-600 hover:text-white transition-colors select-none">!</span>
             </InfoTip>
           </label>
