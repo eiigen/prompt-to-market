@@ -19,10 +19,10 @@ function SidebarInner({ onLoad }: Props) {
 
   return (
     <>
-      {open && <div onClick={() => setOpen(false)} className="md:hidden fixed inset-0 z-40 bg-black/60" />}
+      {open && <div onClick={() => setOpen(false)} className="fixed inset-0 z-40 bg-black/60 md:bg-black/40" />}
 
-      <aside className={`fixed md:sticky md:top-16 left-0 h-[calc(100vh-4rem)] z-50 w-72 bg-zinc-900 border-r border-zinc-800 transform transition-transform duration-200 overflow-y-auto ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:block`}>
-        <div className="p-6 pt-6">
+      <aside className={`fixed top-0 left-0 h-full z-50 w-72 bg-zinc-900 border-r border-zinc-800 transform transition-transform duration-200 overflow-y-auto pt-16 ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="p-6 pt-2">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-zinc-100">History</h2>
             {history.length > 0 && (
@@ -59,8 +59,12 @@ function SidebarInner({ onLoad }: Props) {
 function Trigger() {
   const { open, setOpen } = useContext(SidebarCtx);
   return (
-    <button onClick={() => setOpen(!open)} className="text-zinc-400 hover:text-indigo-400 p-2 text-xl transition-colors">
-      ☰
+    <button onClick={() => setOpen(!open)} className="text-zinc-400 hover:text-indigo-400 p-1.5 rounded-md hover:bg-zinc-800 transition-colors">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <line x1="3" y1="5" x2="17" y2="5" />
+        <line x1="3" y1="10" x2="17" y2="10" />
+        <line x1="3" y1="15" x2="17" y2="15" />
+      </svg>
     </button>
   );
 }
