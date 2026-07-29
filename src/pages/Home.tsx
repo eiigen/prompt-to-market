@@ -93,7 +93,7 @@ export default function Home() {
             </p>
           </section>
 
-          <section id="generate-form" className="mb-10 animate-fade-up [animation-delay:100ms]">
+          <section id="generate-form" className="mb-10 animate-fade-up [animation-delay:100ms] relative z-10">
             <GenerateForm onGenerate={handleGenerate} isLoading={isLoading} />
           </section>
 
