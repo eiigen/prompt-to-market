@@ -50,19 +50,22 @@ Output only the Q&A, no extra text.`,
   }),
 };
 
-// Image prompt enhancer — generates detailed, specific prompts per image type
+// Image prompt enhancer — generates visual scene descriptions, not product concepts
 export const IMAGE_ENHANCER_PROMPTS: Record<string, string> = {
-  hero: `You are a prompt engineer for AI image generation. Given a product idea, write ONE image prompt for a hero/landing page image. The image must: show the product in a real-world context, be photorealistic, have dramatic lighting, be 1200x630 landscape format. Include: specific scene, lighting details, mood, color palette, camera angle, and lens style. Example format: "A sleek [product] on a marble desk, soft window light from the left, warm amber tones, shallow depth of field, shot on 85mm f/1.4, cinematic mood." Output only the prompt, 40-60 words.`,
-  logo: `You are a prompt engineer for AI image generation. Given a product idea, write ONE image prompt for a logo/brand mark image. The image must: show 3 logo variations in a grid layout (minimal line icon, bold typographic, playful illustrated), white background, centered, clean professional branding. Include: layout description, style of each variation, colors. Example format: "Three logo designs for [brand]: top - minimal line icon of a [shape], middle - bold sans-serif typography, bottom - playful illustrated mascot. White background, grid layout, professional branding." Output only the prompt, 40-60 words.`,
-  'social-image': `You are a prompt engineer for AI image generation. Given a product idea, write ONE image prompt for an Instagram square post image. The image must: be 1080x1080 square, have a bold visual hook, be scroll-stopping, include product concept prominently. Include: composition, colors, typography style, mood, visual hierarchy. Example format: "Bold Instagram post for [product]: vibrant gradient background, large centered product mockup, white sans-serif text overlay, neon accents, high contrast, scroll-stopping composition." Output only the prompt, 40-60 words.`,
-  og: `You are a prompt engineer for AI image generation. Given a product idea, write ONE image prompt for an Open Graph image (1200x630). The image must: be wide-format, have space for text overlay, look professional when shared on social media, have clean composition. Include: layout, colors, mood, where text would go. Example format: "Wide OG image for [product]: dark navy background, subtle grid pattern, centered product visualization, space for text on the left, clean professional layout, minimal design." Output only the prompt, 40-60 words.`,
+  hero: `You write image prompts for Flux AI. Given a product idea, describe a PHOTOGRAPHIC SCENE that visually represents the idea. Describe ONLY what would be visible in a photograph: objects, people, setting, lighting, colors, composition, camera angle. Do NOT use words like "app", "AI", "digital", "interface", "concept", "mockup". Instead describe a real-world scene. Example: "Gym meal prep: open food containers on a wooden table, dumbbells in background, morning sunlight streaming through window, fresh vegetables, clean aesthetic, shallow depth of field, 85mm lens." Output only the scene description, 30-50 words.`,
+
+  logo: `You write image prompts for Flux AI. Given a product idea, describe THREE LOGO VARIATIONS in a grid. Describe ONLY the visual elements: shapes, icons, typography, colors, layout. Example: "Three logo designs: top - minimalist circular icon with abstract leaf shape, thin line art; middle - bold geometric sans-serif typeface, dark navy text; bottom - playful illustrated character, rounded shapes, warm orange. White background, grid layout." Output only the description, 30-50 words.`,
+
+  'social-image': `You write image prompts for Flux AI. Given a product idea, describe a VIBRANT INSTAGRAM POST. Describe ONLY what is visible: background, colors, composition, text placement, mood. Example: "Square format: bold teal and coral gradient background, centered white product packaging, large sans-serif headline text, subtle shadow depth, clean modern layout, bright natural lighting, high contrast, social media aesthetic." Output only the description, 30-50 words.`,
+
+  og: `You write image prompts for Flux AI. Given a product idea, describe a WIDE FORMAT SHARING IMAGE (1200x630). Describe ONLY what is visible: background, colors, composition, text space. Example: "Wide format: deep navy gradient background, subtle dotted grid pattern, centered geometric icon, negative space on left for text overlay, clean minimal layout, professional corporate aesthetic, soft glow effect." Output only the description, 30-50 words.`,
 };
 
 export const IMAGE_PROMPTS: Record<string, (idea: string) => string> = {
-  hero: (idea) => `Professional product photography of ${idea}. Clean white background. Modern minimal style. Studio lighting. High quality. 4k.`,
-  logo: (idea) => `Three logo designs for ${idea}. Top: minimal line icon. Middle: bold typographic. Bottom: playful illustrated. White background. Grid layout. Professional branding.`,
-  'social-image': (idea) => `Instagram post design for ${idea}. Clean modern aesthetic. Subtle gradient background. Product showcase. High quality.`,
-  og: (idea) => `Open graph image for ${idea}. Modern clean design. Professional. Product name and tagline concept.`,
+  hero: (idea) => `Real-world scene representing ${idea}. Clean professional photography, natural lighting, shallow depth of field, warm tones, 85mm lens, cinematic composition.`,
+  logo: (idea) => `Three logo variations for ${idea} brand. Minimal line icon, bold typographic, playful illustrated. White background, grid layout, professional branding.`,
+  'social-image': (idea) => `Vibrant Instagram post for ${idea}. Bold gradient background, centered product, large text overlay, high contrast, scroll-stopping composition.`,
+  og: (idea) => `Wide sharing image for ${idea}. Dark navy gradient, subtle grid pattern, centered icon, space for text, professional clean layout.`,
 };
 
 export interface ModelInfo {

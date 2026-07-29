@@ -167,6 +167,9 @@ export default function Results() {
     <div className="min-h-screen bg-background text-on-background">
       <Sidebar onLoad={handleLoadHistory} />
 
+      {/* Desktop: sidebar + main in flex row */}
+      <div className="md:flex md:pl-72">
+
       {/* Progress bar */}
       <div className="fixed top-0 left-0 w-full z-[100] h-1 bg-surface-container-high">
         <div className="h-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all duration-1000"
@@ -186,7 +189,7 @@ export default function Results() {
       </nav>
 
       {/* Main — exact Stitch bento */}
-      <main className="pt-32 pb-2xl px-xl max-w-container-max mx-auto">
+      <main className="pt-32 pb-2xl px-xl max-w-container-max mx-auto w-full">
         <header className="flex flex-col md:flex-row justify-between items-end mb-xl gap-lg">
           <div>
             <h1 className="font-display-md text-display-md text-on-surface mb-2">Your Marketing Kit is Ready</h1>
@@ -303,6 +306,7 @@ export default function Results() {
           <p className="font-label-sm text-label-sm text-on-surface-variant opacity-80">© 2026 Prompt to Market. All rights reserved.</p>
         </div>
       </footer>
+      </div>{/* end flex row */}
     </div>
   );
 }
