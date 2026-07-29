@@ -31,7 +31,7 @@ export default function DownloadAll({ outputs, idea }: Props) {
 
   return (
     <button onClick={handleDownload}
-      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+      className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-md px-4 py-2 transition-colors">
       Download All ({count} files)
     </button>
   );

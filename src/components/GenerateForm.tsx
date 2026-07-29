@@ -16,21 +16,21 @@ function ModelSelect({ models, value, onChange, placeholder }: { models: ModelIn
   return (
     <div className="relative flex-1">
       <button type="button" onClick={() => setOpen(!open)}
-        className="w-full bg-surface-container-low text-on-surface text-label-md px-sm py-xs rounded-lg border border-outline-variant text-left flex justify-between items-center">
+        className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 text-sm px-3 py-1.5 rounded-md text-left flex justify-between items-center">
         <span className="truncate">{selected?.title || placeholder}</span>
-        <span className="text-on-surface-variant ml-xs">▾</span>
+        <span className="text-zinc-400 ml-1">▾</span>
       </button>
       {open && (
-        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface-container border border-outline-variant rounded-lg shadow-xl max-h-60 overflow-hidden flex flex-col">
+        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-zinc-800 border border-zinc-700 rounded-md shadow-xl max-h-60 overflow-hidden flex flex-col">
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search models..." autoFocus
-            className="bg-surface-container-low text-on-surface text-label-md px-sm py-xs border-b border-outline-variant outline-none" />
+            className="bg-zinc-900 text-zinc-100 text-sm px-3 py-1.5 border-b border-zinc-700 outline-none focus:border-indigo-500" />
           <div className="overflow-y-auto">
-            {filtered.length === 0 && <div className="px-sm py-xs text-on-surface-variant text-label-md">No models found</div>}
+            {filtered.length === 0 && <div className="px-3 py-1.5 text-zinc-500 text-sm">No models found</div>}
             {filtered.map(m => (
               <button key={m.name} type="button" onClick={() => { onChange(m.name); setOpen(false); setSearch(''); }}
-                className={`w-full text-left px-sm py-xs text-label-md hover:bg-surface-container-high transition-colors ${m.name === value ? 'text-primary bg-primary/10' : 'text-on-surface'}`}>
+                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-zinc-700 transition-colors ${m.name === value ? 'text-indigo-400 bg-indigo-500/10' : 'text-zinc-100'}`}>
                 <div className="truncate">{m.title}</div>
-                {m.description && <div className="text-[10px] text-on-surface-variant truncate">{m.description}</div>}
+                {m.description && <div className="text-[10px] text-zinc-500 truncate">{m.description}</div>}
               </button>
             ))}
           </div>
@@ -60,33 +60,37 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-sm">
-      <div className="flex flex-col md:flex-row gap-sm">
-        <div className="flex-1 relative flex items-center">
-          <span className="material-symbols-outlined absolute left-md text-on-surface-variant">lightbulb</span>
-          <input type="text" value={idea} onChange={e => setIdea(e.target.value)}
-            placeholder="Describe your product idea (e.g., A subscription box for plant lovers)..."
-            className="w-full bg-surface-container-low border-none focus:ring-1 focus:ring-primary text-on-surface py-lg pl-[48px] pr-md rounded-lg font-body-md placeholder:text-outline"
-            disabled={isLoading} />
-        </div>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <div className="flex flex-col md:flex-row gap-3">
+        <input type="text" value={idea} onChange={e => setIdea(e.target.value)}
+          placeholder="Describe your product idea (e.g., A subscription box for plant lovers)..."
+          className="flex-1 bg-zinc-900 border border-zinc-700 rounded-md text-zinc-100 px-4 py-3 text-base placeholder:text-zinc-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+          disabled={isLoading} />
         <button type="submit" disabled={isLoading || !idea.trim()}
-          className="bg-[#3B82F6] hover:bg-blue-600 text-white px-2xl py-lg rounded-lg font-label-md transition-all flex items-center justify-center gap-sm group disabled:opacity-50">
+          className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-md px-6 py-3 font-medium transition-colors disabled:opacity-50 whitespace-nowrap">
           {isLoading ? 'Generating...' : apiKey ? 'Generate Launch Kit' : 'Connect & Generate'}
-          <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">bolt</span>
         </button>
       </div>
-      <div className="flex flex-col sm:flex-row gap-sm px-sm pb-xs">
-        <div className="flex items-center gap-sm flex-1">
-          <label className="text-label-sm font-label-sm text-on-surface-variant whitespace-nowrap">Text:</label>
+      <div className="flex flex-col sm:flex-row gap-3 px-1">
+        <div className="flex items-center gap-2 flex-1">
+          <label className="text-sm text-zinc-400 whitespace-nowrap">Text:</label>
           <ModelSelect models={textModels} value={textModel} onChange={setTextModel} placeholder="Select text model" />
         </div>
-        <div className="flex items-center gap-sm flex-1">
-          <label className="text-label-sm font-label-sm text-on-surface-variant whitespace-nowrap">Image:</label>
+        <div className="flex items-center gap-2 flex-1">
+          <label className="text-sm text-zinc-400 whitespace-nowrap">Image:</label>
           <ModelSelect models={imageModels} value={imageModel} onChange={setImageModel} placeholder="Select image model" />
         </div>
       </div>
-      <div className="text-sm text-on-surface-variant px-xs">
-        {apiKey ? <span>Connected ✓ <button type="button" onClick={logout} className="underline hover:text-primary">Disconnect</button></span> : <span>Connect Pollinations to start generating</span>}
+      <div className="text-sm text-zinc-400 px-1">
+        {apiKey ? (
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+            Connected
+            <button type="button" onClick={logout} className="text-indigo-400 hover:text-indigo-300 underline ml-1">Disconnect</button>
+          </span>
+        ) : (
+          <span>Connect Pollinations to start generating</span>
+        )}
       </div>
     </form>
   );

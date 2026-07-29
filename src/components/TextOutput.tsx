@@ -43,11 +43,18 @@ export default function TextOutput({ output, idea, onUpdate }: Props) {
     setBusy(false);
   };
 
-  if (output.status === 'loading' || busy) return <p className="text-gray-500 animate-pulse">Generating...</p>;
+  if (output.status === 'loading' || busy) return (
+    <div className="space-y-2">
+      <div className="h-4 bg-zinc-800 rounded animate-pulse w-3/4" />
+      <div className="h-4 bg-zinc-800 rounded animate-pulse w-1/2" />
+      <div className="h-4 bg-zinc-800 rounded animate-pulse w-5/6" />
+    </div>
+  );
+
   if (output.status === 'error') return (
     <div>
-      <p className="text-red-400 text-sm">{output.error}</p>
-      <button onClick={regenerate} className="text-blue-400 text-sm underline mt-1">Retry</button>
+      <p className="text-rose-400 text-sm">{output.error}</p>
+      <button onClick={regenerate} className="text-indigo-400 hover:text-indigo-300 text-sm underline mt-1">Retry</button>
     </div>
   );
 
@@ -56,19 +63,19 @@ export default function TextOutput({ output, idea, onUpdate }: Props) {
       {editing ? (
         <div>
           <textarea value={editText} onChange={(e) => setEditText(e.target.value)}
-            className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-sm min-h-[100px] text-white" />
-          <div className="flex gap-2 mt-2">
-            <button onClick={regenerateFromEdit} className="text-blue-400 text-sm underline">Regenerate from edit</button>
-            <button onClick={() => setEditing(false)} className="text-gray-500 text-sm underline">Cancel</button>
+            className="w-full p-3 rounded-md bg-zinc-800 border border-zinc-700 text-sm min-h-[100px] text-zinc-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" />
+          <div className="flex gap-3 mt-2">
+            <button onClick={regenerateFromEdit} className="text-indigo-400 hover:text-indigo-300 text-sm underline">Regenerate from edit</button>
+            <button onClick={() => setEditing(false)} className="text-zinc-500 hover:text-zinc-400 text-sm underline">Cancel</button>
           </div>
         </div>
       ) : (
         <div>
-          <pre className="whitespace-pre-wrap text-sm text-gray-300">{output.content}</pre>
+          <pre className="whitespace-pre-wrap text-sm text-zinc-300">{output.content}</pre>
           <div className="flex gap-3 mt-2">
-            <button onClick={() => navigator.clipboard.writeText(output.content)} className="text-blue-400 text-sm underline">Copy</button>
-            <button onClick={() => { setEditText(output.content); setEditing(true); }} className="text-blue-400 text-sm underline">Edit</button>
-            <button onClick={regenerate} className="text-blue-400 text-sm underline">Regenerate</button>
+            <button onClick={() => navigator.clipboard.writeText(output.content)} className="text-indigo-400 hover:text-indigo-300 text-sm underline">Copy</button>
+            <button onClick={() => { setEditText(output.content); setEditing(true); }} className="text-indigo-400 hover:text-indigo-300 text-sm underline">Edit</button>
+            <button onClick={regenerate} className="text-indigo-400 hover:text-indigo-300 text-sm underline">Regenerate</button>
           </div>
         </div>
       )}

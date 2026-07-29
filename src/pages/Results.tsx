@@ -17,7 +17,6 @@ const IMAGE_SIZES: Record<string, { width: number; height: number }> = {
   og: { width: 1200, height: 630 },
 };
 
-// Bento order + span config — matches Stitch exactly
 const BENTO: { id: string; span: string }[] = [
   { id: 'hero', span: 'lg:col-span-2' },
   { id: 'positioning', span: '' },
@@ -100,12 +99,10 @@ export default function Results() {
     IMAGE_TYPES.forEach(async (type) => {
       setOutputs(p => p.map(o => o.id === type ? { ...o, status: 'loading' } : o));
       try {
-        // Enhance prompt via text API first
         const enhancedPrompt = await generateText(IMAGE_ENHANCER_PROMPTS[type], storedIdea, apiKey, tm);
         const url = getImageUrl(enhancedPrompt, IMAGE_SIZES[type].width, IMAGE_SIZES[type].height, im, apiKey);
         setOutputs(p => p.map(o => o.id === type ? { ...o, url, status: 'done' } : o));
       } catch {
-        // Fallback: use static prompt
         const url = getImageUrl(IMAGE_PROMPTS[type](storedIdea), IMAGE_SIZES[type].width, IMAGE_SIZES[type].height, im, apiKey);
         setOutputs(p => p.map(o => o.id === type ? { ...o, url, status: 'done' } : o));
       }
@@ -161,152 +158,164 @@ export default function Results() {
     : tab === 'copy' ? outputs.filter(o => TEXT_TYPES.includes(o.type as any))
     : outputs.filter(o => IMAGE_TYPES.includes(o.type as any));
 
-  const getSpan = (id: string) => tab !== 'all' ? '' : BENTO.find(b => b.id === id)?.span || '';
-
   return (
-    <div className="min-h-screen bg-background text-on-background">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <Sidebar onLoad={handleLoadHistory} />
 
-      {/* Desktop: sidebar + main in flex row */}
-      <div className="md:flex md:pl-72">
-
       {/* Progress bar */}
-      <div className="fixed top-0 left-0 w-full z-[100] h-1 bg-surface-container-high">
-        <div className="h-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all duration-1000"
-          style={{ width: `${outputs.length ? (doneCount / outputs.length) * 100 : 0}%` }} />
-        {doneCount === outputs.length && outputs.length > 0 && (
-          <div className="absolute top-1 left-12 bg-surface-container-lowest px-2 py-0.5 rounded-b-md border-x border-b border-outline-variant">
-            <span className="text-[10px] font-label-sm text-[#10b981] uppercase tracking-wider">All {outputs.length} assets ready</span>
-          </div>
-        )}
+      <div className="fixed top-0 left-0 w-full z-[100] h-1 bg-zinc-800">
+        <div
+          className="h-full bg-emerald-500 transition-all duration-1000"
+          style={{ width: `${outputs.length ? (doneCount / outputs.length) * 100 : 0}%` }}
+        />
       </div>
 
-      {/* Top Nav — exact Stitch */}
-      <nav className="fixed top-1 w-full z-50 bg-surface border-b border-outline-variant flex justify-between items-center px-xl h-20 max-w-container-max mx-auto">
-        <div className="w-10" />
-        <span className="font-display-md text-display-md text-primary">Prompt to Market</span>
-        <DownloadAll outputs={outputs} idea={idea} />
-      </nav>
+      <div className="md:flex">
+        {/* Sidebar spacer on desktop */}
+        <div className="hidden md:block md:w-72 flex-shrink-0" />
 
-      {/* Main — exact Stitch bento */}
-      <main className="pt-32 pb-2xl px-xl max-w-container-max mx-auto w-full">
-        <header className="flex flex-col md:flex-row justify-between items-end mb-xl gap-lg">
-          <div>
-            <h1 className="font-display-md text-display-md text-on-surface mb-2">Your Marketing Kit is Ready</h1>
-            <p className="text-on-surface-variant font-body-lg text-body-lg">Generated based on: "{idea}"</p>
-          </div>
-        </header>
-
-        {/* Tabs — exact Stitch */}
-        <div className="flex items-center gap-xl border-b border-outline-variant mb-xl">
-          {[
-            { key: 'all' as const, label: `All (${outputs.length})` },
-            { key: 'copy' as const, label: `Copy (${TEXT_TYPES.length})` },
-            { key: 'visuals' as const, label: `Visuals (${IMAGE_TYPES.length})` },
-          ].map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)}
-              className={`font-label-md text-label-md pb-4 px-2 transition-all ${tab === t.key ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}>
-              {t.label}
+        {/* Main content */}
+        <div className="flex-1 min-w-0">
+          {/* Top bar */}
+          <nav className="sticky top-1 z-50 bg-zinc-950 border-b border-zinc-800 flex justify-between items-center px-6 h-16">
+            <button
+              onClick={() => navigate('/')}
+              className="text-zinc-400 hover:text-zinc-100 transition-colors text-sm"
+            >
+              ← Back
             </button>
-          ))}
-        </div>
+            <span className="text-sm text-zinc-400 truncate max-w-md text-center" title={idea}>
+              "{idea}"
+            </span>
+            <DownloadAll outputs={outputs} idea={idea} />
+          </nav>
 
-        {/* Bento Grid — exact Stitch, scrollable on mobile */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg overflow-x-auto">
-          {filtered.map(o => {
-            const m = META[o.id];
-            const isCopy = m.badge === 'copy';
-            const o2 = o as TOut;
-            const o3 = o as IOut;
+          {/* Content */}
+          <main className="px-6 py-8 max-w-5xl mx-auto">
+            {/* Filter tabs */}
+            <div className="flex items-center gap-6 border-b border-zinc-800 mb-6">
+              {([
+                { key: 'all' as const, label: `All (${outputs.length})` },
+                { key: 'copy' as const, label: `Copy (${TEXT_TYPES.length})` },
+                { key: 'visuals' as const, label: `Visuals (${IMAGE_TYPES.length})` },
+              ]).map(t => (
+                <button
+                  key={t.key}
+                  onClick={() => setTab(t.key)}
+                  className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
+                    tab === t.key
+                      ? 'text-indigo-400 border-indigo-400'
+                      : 'text-zinc-500 border-transparent hover:text-zinc-300'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
 
-            return (
-              <div key={o.id} className={`glass-card rounded-xl p-lg flex flex-col hover:border-primary transition-all ${getSpan(o.id)}`}>
-                {/* Badge row */}
-                <div className="flex justify-between items-start mb-md">
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${isCopy ? 'bg-primary/10 text-primary' : 'bg-tertiary-container text-on-tertiary-container'}`}>
-                    {isCopy ? 'Copy' : 'Visuals'}
-                  </span>
-                  <span className="material-symbols-outlined text-on-surface-variant text-xl">{m.icon}</span>
-                </div>
+            {/* Results grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filtered.map(o => {
+                const m = META[o.id];
+                const isCopy = m.badge === 'copy';
+                const o2 = o as TOut;
+                const o3 = o as IOut;
 
-                <h3 className="font-headline-md text-headline-md mb-2">{m.label}</h3>
+                return (
+                  <div key={o.id} className="bg-zinc-900 border border-zinc-800 rounded-md p-4 flex flex-col">
+                    {/* Badge */}
+                    <span className={`inline-block self-start px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-3 ${
+                      isCopy ? 'bg-indigo-500/10 text-indigo-400' : 'bg-zinc-800 text-zinc-400'
+                    }`}>
+                      {isCopy ? 'Copy' : 'Visual'}
+                    </span>
 
-                {/* Content */}
-                <div className="flex-grow">
-                  {o.status === 'loading' ? <div className="h-24 bg-surface-container rounded animate-pulse" />
-                  : o.status === 'error' ? <p className="text-error text-sm">{(o as any).error}</p>
-                  : isCopy ? (
-                    o.id === 'landing' ? (
-                      <div className="bg-surface-container-lowest p-md rounded-lg border border-outline-variant italic text-primary-fixed mb-lg">
-                        "{o2.content.split('\n').find(l => l.toLowerCase().startsWith('headline:'))?.replace(/^headline:\s*/i, '') || o2.content.split('\n')[0]}"
-                      </div>
-                    ) : o.id === 'faq' ? (
-                      <p className="text-on-surface-variant font-body-md text-body-md line-clamp-4 whitespace-pre-wrap">{o2.content}</p>
-                    ) : (
-                      <p className="text-on-surface-variant font-body-md text-body-md line-clamp-4">{o2.content}</p>
-                    )
-                  ) : o.id === 'social-image' ? (
-                    <div className="grid grid-cols-3 gap-sm mb-md">
-                      {[1,2,3].map(i => (
-                        <div key={i} className="aspect-square bg-surface-container rounded border border-outline-variant overflow-hidden">
-                          {o3.url ? <img src={o3.url} alt={`${o.id}-${i}`} className="w-full h-full object-cover" loading="lazy" /> : <div className="w-full h-full animate-pulse" />}
+                    <h3 className="text-zinc-100 font-medium mb-2">{m.label}</h3>
+
+                    {/* Content */}
+                    <div className="flex-grow mb-4">
+                      {o.status === 'loading' ? (
+                        <div className="h-24 bg-zinc-800 rounded animate-pulse" />
+                      ) : o.status === 'error' ? (
+                        <div className="flex items-center gap-3">
+                          <p className="text-rose-400 text-sm">{(o as any).error}</p>
+                          <button
+                            onClick={() => handleRegenerate(o.id)}
+                            className="text-xs text-indigo-400 hover:text-indigo-300 underline"
+                          >
+                            Retry
+                          </button>
                         </div>
-                      ))}
-                    </div>
-                  ) : o.id === 'logo' ? (
-                    <div className="aspect-square bg-surface-container-high rounded-lg mb-md flex items-center justify-center border border-outline-variant">
-                      {o3.url ? <img src={o3.url} alt={o.id} className="w-24 h-24 object-contain" loading="lazy" /> : <div className="w-24 h-24 animate-pulse rounded" />}
-                    </div>
-                  ) : (
-                    <div className="relative h-48 bg-surface-container rounded-lg overflow-hidden mb-md">
-                      {o3.url ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${o3.url})` }} /> : <div className="absolute inset-0 animate-pulse" />}
-                    </div>
-                  )}
-                </div>
-
-                {/* Actions — exact Stitch */}
-                <div className="mt-lg flex gap-sm pt-md border-t border-outline-variant">
-                  {isCopy ? (
-                    <>
-                      <button onClick={() => handleCopy(o.id, o2.content)}
-                        className="flex-1 bg-surface-container-high text-on-surface font-label-md text-label-md py-2 rounded-lg flex items-center justify-center gap-xs hover:bg-surface-variant transition-colors">
-                        {copiedId === o.id ? '✓ Copied!' : 'Copy'}
-                      </button>
-                      <button onClick={() => handleRegenerate(o.id)}
-                        className="w-12 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center hover:brightness-110">↻</button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => handleRegenerate(o.id)}
-                        className="flex-1 bg-surface-container-high text-on-surface font-label-md text-label-md py-2 rounded-lg hover:bg-surface-variant transition-colors">Regenerate</button>
-                      {o3.url && (
-                        <a href={o3.url} download={`${idea}-${o.id}.jpg`}
-                          className="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md flex items-center gap-xs hover:brightness-110">
-                          Download
-                        </a>
+                      ) : isCopy ? (
+                        <p className="text-zinc-400 text-sm line-clamp-3 whitespace-pre-wrap">{o2.content}</p>
+                      ) : (
+                        <div className="rounded-md overflow-hidden bg-zinc-800">
+                          {o3.url ? (
+                            <img src={o3.url} alt={o.id} className="w-full h-auto object-cover" loading="lazy" />
+                          ) : (
+                            <div className="w-full h-48 animate-pulse" />
+                          )}
+                        </div>
                       )}
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </main>
+                    </div>
 
-      {/* Footer — exact Stitch */}
-      <footer className="bg-surface-container-lowest border-t border-outline-variant w-full mt-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center px-xl py-lg max-w-container-max mx-auto">
-          <span className="font-title-lg text-title-lg text-on-surface mb-md md:mb-0">Prompt to Market</span>
-          <div className="flex gap-lg flex-wrap justify-center mb-md md:mb-0">
-            <a className="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">Privacy Policy</a>
-            <a className="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">Terms of Service</a>
-            <a className="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">API Docs</a>
-          </div>
-          <p className="font-label-sm text-label-sm text-on-surface-variant opacity-80">© 2026 Prompt to Market. All rights reserved.</p>
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-3 border-t border-zinc-800">
+                      {isCopy ? (
+                        <>
+                          <button
+                            onClick={() => handleCopy(o.id, o2.content)}
+                            className="flex-1 text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1"
+                          >
+                            {copiedId === o.id ? '✓ Copied' : 'Copy'}
+                          </button>
+                          <button
+                            onClick={() => handleRegenerate(o.id)}
+                            className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1"
+                          >
+                            Regenerate
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleRegenerate(o.id)}
+                            className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1"
+                          >
+                            Regenerate
+                          </button>
+                          {o3.url && (
+                            <a
+                              href={o3.url}
+                              download={`${idea}-${o.id}.jpg`}
+                              className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors py-1 ml-auto"
+                            >
+                              Download
+                            </a>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </main>
+
+          {/* Footer */}
+          <footer className="border-t border-zinc-800 py-6 px-6 mt-auto">
+            <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+              <span className="text-sm font-semibold text-zinc-100">Prompt to Market</span>
+              <div className="flex gap-6">
+                <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">Privacy Policy</a>
+                <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">Terms of Service</a>
+                <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">API Docs</a>
+              </div>
+              <p className="text-xs text-zinc-500">© 2026 Prompt to Market</p>
+            </div>
+          </footer>
         </div>
-      </footer>
-      </div>{/* end flex row */}
+      </div>
     </div>
   );
 }

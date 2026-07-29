@@ -21,8 +21,8 @@ export default function ImageOutput({ output, idea, onUpdate }: Props) {
 
   if (output.status === 'error') return (
     <div>
-      <p className="text-red-400 text-sm">{output.error}</p>
-      <button onClick={handleRegenerate} className="text-blue-400 text-sm underline mt-1">Retry</button>
+      <p className="text-rose-400 text-sm">{output.error}</p>
+      <button onClick={handleRegenerate} className="text-indigo-400 hover:text-indigo-300 text-sm underline mt-1">Retry</button>
     </div>
   );
 
@@ -30,15 +30,15 @@ export default function ImageOutput({ output, idea, onUpdate }: Props) {
     <div>
       {output.url && !regenerating ? (
         <div>
-          <img src={output.url} alt={output.type} className="w-full rounded" loading="lazy" />
+          <img src={output.url} alt={output.type} className="w-full rounded-md overflow-hidden" loading="lazy" />
           <div className="flex gap-3 mt-2">
-            <a href={output.url} download={idea + '-' + output.type + '.jpg'} className="text-blue-400 text-sm underline">Download</a>
-            <button onClick={handleRegenerate} className="text-blue-400 text-sm underline">Regenerate</button>
+            <a href={output.url} download={idea + '-' + output.type + '.jpg'} className="text-indigo-400 hover:text-indigo-300 text-sm underline">Download</a>
+            <button onClick={handleRegenerate} className="text-indigo-400 hover:text-indigo-300 text-sm underline">Regenerate</button>
           </div>
         </div>
       ) : (
-        <div className="w-full h-48 bg-gray-800 rounded animate-pulse flex items-center justify-center">
-          <p className="text-gray-500">{regenerating ? 'Regenerating...' : 'Loading...'}</p>
+        <div className="w-full h-48 bg-zinc-800 rounded-md animate-pulse flex items-center justify-center">
+          <p className="text-zinc-500 text-sm">{regenerating ? 'Regenerating...' : 'Loading...'}</p>
         </div>
       )}
     </div>
