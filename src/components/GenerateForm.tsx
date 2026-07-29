@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getApiKey, initiateAuth, logout } from '../lib/auth';
 import { fetchModels, type ModelInfo } from '../lib/prompts';
 
@@ -9,12 +9,22 @@ interface Props {
 
 function InfoTip({ text, children }: { text: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [open]);
+
   return (
-    <span className="relative inline-flex items-center">
-      <span onClick={() => setOpen(!open)} className="cursor-help">{children}</span>
+    <span ref={ref} className="relative inline-flex items-center">
+      <span onClick={() => setOpen(!open)} className="cursor-pointer">{children}</span>
       {open && (
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 rounded bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-xs leading-relaxed z-50 shadow-lg"
-          onClick={() => setOpen(false)}>
+        <span className="absolute bottom-full left-0 mb-2 w-64 p-2.5 rounded-md bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-xs leading-relaxed z-50 shadow-lg break-words">
           {text}
         </span>
       )}
@@ -91,7 +101,7 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
           <label className="text-sm text-zinc-400 whitespace-nowrap flex items-center gap-1">
             Text:
             <InfoTip text="Recommended: deepseek, deepseek-pro, glm, or any Kimi variants for best results.">
-              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-zinc-700 text-zinc-400 text-[10px] font-bold hover:bg-zinc-600 hover:text-zinc-200 transition-colors">!</span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-zinc-700 text-zinc-300 text-[11px] font-bold hover:bg-zinc-600 hover:text-white transition-colors select-none">!</span>
             </InfoTip>
           </label>
           <ModelSelect models={textModels} value={textModel} onChange={setTextModel} placeholder="Select text model" />
@@ -100,7 +110,7 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
           <label className="text-sm text-zinc-400 whitespace-nowrap flex items-center gap-1">
             Image:
             <InfoTip text="Use a better image model — smaller ones aren't accurate. FLUX or larger models recommended.">
-              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-zinc-700 text-zinc-400 text-[10px] font-bold hover:bg-zinc-600 hover:text-zinc-200 transition-colors">!</span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-zinc-700 text-zinc-300 text-[11px] font-bold hover:bg-zinc-600 hover:text-white transition-colors select-none">!</span>
             </InfoTip>
           </label>
           <ModelSelect models={imageModels} value={imageModel} onChange={setImageModel} placeholder="Select image model" />
