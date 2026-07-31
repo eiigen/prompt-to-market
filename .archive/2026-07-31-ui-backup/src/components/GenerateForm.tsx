@@ -24,7 +24,7 @@ function InfoTip({ text, children }: { text: string; children: React.ReactNode }
     <span ref={ref} className="relative inline-flex items-center">
       <span onClick={() => setOpen(!open)} className="cursor-pointer">{children}</span>
       {open && (
-        <span className="absolute bottom-full left-0 mb-2 w-52 max-w-[85vw] p-3 rounded-md bg-orange-500/10 border border-orange-500/30 text-orange-200 text-xs leading-relaxed z-50 shadow-lg break-words whitespace-normal">
+        <span className="absolute bottom-full left-0 mb-2 w-52 max-w-[85vw] p-3 rounded-md bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-xs leading-relaxed z-50 shadow-lg break-words whitespace-normal">
           {text}
         </span>
       )}
@@ -41,21 +41,21 @@ function ModelSelect({ models, value, onChange, placeholder }: { models: ModelIn
   return (
     <div className="relative flex-1">
       <button type="button" onClick={() => setOpen(!open)}
-        className="w-full bg-surface-elevated border border-surface-border text-ink-primary text-sm px-3 py-1.5 rounded-lg text-left flex justify-between items-center hover:border-orange-500/40 transition-colors">
+        className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 text-sm px-3 py-1.5 rounded-md text-left flex justify-between items-center">
         <span className="truncate">{selected?.title || placeholder}</span>
-        <span className="text-ink-muted ml-1">▾</span>
+        <span className="text-zinc-400 ml-1">▾</span>
       </button>
       {open && (
-        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface-elevated border border-surface-border rounded-lg shadow-xl max-h-60 overflow-hidden flex flex-col">
+        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-zinc-800 border border-zinc-700 rounded-md shadow-xl max-h-60 overflow-hidden flex flex-col">
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search models..." autoFocus
-            className="bg-surface-base text-ink-primary text-sm px-3 py-1.5 border-b border-surface-border outline-none focus:border-orange-500" />
+            className="bg-zinc-900 text-zinc-100 text-sm px-3 py-1.5 border-b border-zinc-700 outline-none focus:border-indigo-500" />
           <div className="overflow-y-auto">
-            {filtered.length === 0 && <div className="px-3 py-1.5 text-ink-muted text-sm">No models found</div>}
+            {filtered.length === 0 && <div className="px-3 py-1.5 text-zinc-500 text-sm">No models found</div>}
             {filtered.map(m => (
               <button key={m.name} type="button" onClick={() => { onChange(m.name); setOpen(false); setSearch(''); }}
-                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-surface-base transition-colors ${m.name === value ? 'text-orange-400 bg-orange-500/10' : 'text-ink-primary'}`}>
+                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-zinc-700 transition-colors ${m.name === value ? 'text-indigo-400 bg-indigo-500/10' : 'text-zinc-100'}`}>
                 <div className="truncate">{m.title}</div>
-                {m.description && <div className="text-[10px] text-ink-muted truncate">{m.description}</div>}
+                {m.description && <div className="text-[10px] text-zinc-500 truncate">{m.description}</div>}
               </button>
             ))}
           </div>
@@ -85,43 +85,43 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 animate-fade-up">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div className="flex flex-col md:flex-row gap-3">
         <input type="text" value={idea} onChange={e => setIdea(e.target.value)}
           placeholder="Describe your product idea (e.g., A subscription box for plant lovers)..."
-          className="flex-1 bg-surface-elevated border border-surface-border rounded-lg text-ink-primary px-4 py-3 text-base placeholder:text-ink-muted focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all"
+          className="flex-1 bg-zinc-900 border border-zinc-700 rounded-md text-zinc-100 px-4 py-3 text-base placeholder:text-zinc-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
           disabled={isLoading} />
         <button type="submit" disabled={isLoading || !idea.trim()}
-          className="bg-orange-500 hover:bg-orange-600 text-black rounded-lg px-6 py-3 font-semibold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap hover:shadow-glow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]">
+          className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-md px-6 py-3 font-medium transition-all duration-200 disabled:opacity-50 whitespace-nowrap hover:shadow-lg hover:shadow-indigo-500/20 hover:-translate-y-0.5 active:translate-y-0">
           {isLoading ? 'Generating...' : apiKey ? 'Generate Launch Kit' : 'Connect & Generate'}
         </button>
       </div>
       <div className="flex flex-col sm:flex-row gap-3 px-1 relative z-20">
         <div className="flex items-center gap-2 flex-1">
-          <label className="text-sm text-ink-secondary whitespace-nowrap flex items-center gap-1">
+          <label className="text-sm text-zinc-400 whitespace-nowrap flex items-center gap-1">
             Text:
             <InfoTip text="Recommended: deepseek, deepseek-pro, glm, or any Kimi variants for best results.">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-elevated border border-surface-border text-ink-secondary text-[11px] font-bold hover:bg-orange-500/10 hover:text-orange-400 hover:border-orange-500/40 transition-colors select-none">!</span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-zinc-700 text-zinc-300 text-[11px] font-bold hover:bg-zinc-600 hover:text-white transition-colors select-none">!</span>
             </InfoTip>
           </label>
           <ModelSelect models={textModels} value={textModel} onChange={setTextModel} placeholder="Select text model" />
         </div>
         <div className="flex items-center gap-2 flex-1">
-          <label className="text-sm text-ink-secondary whitespace-nowrap flex items-center gap-1">
+          <label className="text-sm text-zinc-400 whitespace-nowrap flex items-center gap-1">
             Image:
-            <InfoTip text="Use a larger image model for more accurate visuals.">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-elevated border border-surface-border text-ink-secondary text-[11px] font-bold hover:bg-orange-500/10 hover:text-orange-400 hover:border-orange-500/40 transition-colors select-none">!</span>
+            <InfoTip text="Use better image model as small ones aren't accurate">
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-zinc-700 text-zinc-300 text-[11px] font-bold hover:bg-zinc-600 hover:text-white transition-colors select-none">!</span>
             </InfoTip>
           </label>
           <ModelSelect models={imageModels} value={imageModel} onChange={setImageModel} placeholder="Select image model" />
         </div>
       </div>
-      <div className="text-sm text-ink-secondary px-1">
+      <div className="text-sm text-zinc-400 px-1">
         {apiKey ? (
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
             Connected
-            <button type="button" onClick={logout} className="text-orange-400 hover:text-orange-300 underline ml-1">Disconnect</button>
+            <button type="button" onClick={logout} className="text-indigo-400 hover:text-indigo-300 underline ml-1">Disconnect</button>
           </span>
         ) : (
           <span>Connect Pollinations to start generating</span>

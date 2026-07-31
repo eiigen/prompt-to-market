@@ -2,36 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-base: #0a0a0a;
+  --bg-elevated: #141414;
+  --bg-sunken: #050505;
+  --surface-border: #262626;
+  --surface-border-subtle: #1a1a1a;
+  --orange-500: #f97316;
+  --orange-400: #fb923c;
+  --orange-600: #ea580c;
+  --orange-glow: rgba(249, 115, 22, 0.25);
+  --text-primary: #fafafa;
+  --text-secondary: #a3a3a3;
+  --text-muted: #525252;
+}
+
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   body {
-    @apply bg-zinc-950 text-zinc-100 antialiased;
+    @apply antialiased;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: Inter, system-ui, -apple-system, sans-serif;
   }
 }
 
 @layer utilities {
   .animate-fade-up {
-    animation: fade-up 0.5s ease-out both;
+    animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   .animate-fade-in {
-    animation: fade-in 0.4s ease-out both;
+    animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   .animate-slide-in-left {
-    animation: slide-in-left 0.3s ease-out both;
+    animation: slide-in-left 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   .animate-scale-in {
-    animation: scale-in 0.3s ease-out both;
+    animation: scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-pulse-bar {
+    animation: pulse-bar 1.4s ease-in-out infinite;
+  }
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
   }
 }
 
 @keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in {
@@ -40,23 +61,29 @@
 }
 
 @keyframes slide-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-bar {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(249, 115, 22, 0); }
+  50% { box-shadow: 0 0 24px rgba(249, 115, 22, 0.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

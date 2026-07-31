@@ -4,8 +4,11 @@ import { getApiKey } from '../lib/auth';
 import { generateText, getImageUrl } from '../lib/pollinations';
 import { TEXT_PROMPTS, IMAGE_PROMPTS, IMAGE_ENHANCER_PROMPTS } from '../lib/prompts';
 import { saveToHistory, type HistoryEntry } from '../lib/history';
-import { getHistory, deleteHistoryEntry, clearHistory } from '../lib/history';
 import DownloadAll from '../components/DownloadAll';
+import Sidebar from '../components/Sidebar';
+import ProgressBar from '../components/ProgressBar';
+import OutputCard from '../components/OutputCard';
+import EmptyState from '../components/EmptyState';
 import type { AnyOutput, TextOutput as TOut, ImageOutput as IOut } from '../lib/types';
 
 const TEXT_TYPES = ['positioning', 'landing', 'instagram', 'twitter', 'linkedin', 'faq'] as const;
@@ -30,17 +33,17 @@ const BENTO: { id: string; span: string }[] = [
   { id: 'faq', span: '' },
 ];
 
-const META: Record<string, { label: string; badge: 'copy' | 'visual'; icon: string }> = {
-  positioning: { label: 'Positioning', badge: 'copy', icon: 'description' },
-  landing: { label: 'Landing Page H1', badge: 'copy', icon: 'web' },
-  instagram: { label: 'Instagram Caption', badge: 'copy', icon: 'share' },
-  twitter: { label: 'Twitter Thread', badge: 'copy', icon: 'tag' },
-  linkedin: { label: 'LinkedIn Post', badge: 'copy', icon: 'work' },
-  faq: { label: 'Founder FAQ', badge: 'copy', icon: 'help' },
-  hero: { label: 'Hero Image', badge: 'visual', icon: 'image' },
-  logo: { label: 'Logo Mark', badge: 'visual', icon: 'diamond' },
-  'social-image': { label: 'Social Post Grid', badge: 'visual', icon: 'grid_view' },
-  og: { label: 'OG Image', badge: 'visual', icon: 'language' },
+const META: Record<string, { label: string; badge: 'copy' | 'visual' }> = {
+  positioning: { label: 'Positioning', badge: 'copy' },
+  landing: { label: 'Landing Page H1', badge: 'copy' },
+  instagram: { label: 'Instagram Caption', badge: 'copy' },
+  twitter: { label: 'Twitter/X Post', badge: 'copy' },
+  linkedin: { label: 'LinkedIn Post', badge: 'copy' },
+  faq: { label: 'Founder FAQ', badge: 'copy' },
+  hero: { label: 'Hero Image', badge: 'visual' },
+  logo: { label: 'Logo Mark', badge: 'visual' },
+  'social-image': { label: 'Social Post Grid', badge: 'visual' },
+  og: { label: 'OG Image', badge: 'visual' },
 };
 
 export default function Results() {
@@ -53,14 +56,7 @@ export default function Results() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const savedRef = useRef(false);
-
-  useEffect(() => {
-    setHistory(getHistory());
-    const interval = setInterval(() => setHistory(getHistory()), 2000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     const storedIdea = sessionStorage.getItem('product_idea');
@@ -162,136 +158,106 @@ export default function Results() {
     : tab === 'copy' ? outputs.filter(o => TEXT_TYPES.includes(o.type as any))
     : outputs.filter(o => IMAGE_TYPES.includes(o.type as any));
 
-  return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      {/* Sidebar overlay — mobile only */}
-      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 z-40 bg-black/60" />}
-
-      {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full z-50 w-72 bg-zinc-900 border-r border-zinc-800 transform transition-transform duration-200 overflow-y-auto pt-16 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <div className="p-6 pt-2">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-zinc-100">History</h2>
-            {history.length > 0 && (
-              <button onClick={() => { clearHistory(); setHistory([]); }} className="text-sm text-rose-500 hover:underline">Clear all</button>
-            )}
-          </div>
-          {history.length === 0 ? (
-            <p className="text-zinc-500 text-sm">No generations yet.</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {history.map((h) => (
-                <div key={h.id} className="bg-zinc-800/50 hover:bg-zinc-800 rounded-md p-3 group relative transition-colors">
-                  <button onClick={() => { handleLoadHistory(h); setSidebarOpen(false); }} className="text-left w-full">
-                    <p className="text-sm font-medium text-zinc-100 truncate">{h.idea}</p>
-                    <p className="text-xs text-zinc-500 mt-1">{new Date(h.createdAt).toLocaleDateString()} · {h.outputs.length} outputs</p>
-                  </button>
-                  <button onClick={() => { deleteHistoryEntry(h.id); setHistory(getHistory()); }}
-                    className="absolute top-2 right-2 text-zinc-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs">✕</button>
-                </div>
-              ))}
-            </div>
-          )}
+  if (!idea && outputs.length === 0) {
+    return (
+      <div className="min-h-screen bg-surface-base text-ink-primary flex">
+        <div className="hidden md:block w-72 flex-shrink-0">
+          <Sidebar onLoad={handleLoadHistory} className="fixed top-0 left-0 w-72 h-screen" />
         </div>
-      </aside>
+        <div className="flex-1 min-w-0">
+          <nav className="sticky top-0 z-30 flex justify-between items-center w-full px-4 py-4 bg-surface-base/90 backdrop-blur border-b border-surface-border">
+            <span className="text-lg font-bold text-ink-primary">Prompt to Market</span>
+          </nav>
+          <main className="px-4 md:px-6 py-6 max-w-5xl mx-auto">
+            <EmptyState />
+          </main>
+        </div>
+      </div>
+    );
+  }
 
-      {/* Progress bar */}
-      <div className="fixed top-0 left-0 w-full z-[100] h-1 bg-zinc-800">
-        <div className="h-full bg-emerald-500 transition-all duration-1000" style={{ width: `${outputs.length ? (doneCount / outputs.length) * 100 : 0}%` }} />
+  return (
+    <div className="min-h-screen bg-surface-base text-ink-primary flex">
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 z-40 bg-black/60 md:hidden" />
+      )}
+
+      <div className="hidden md:block w-72 flex-shrink-0">
+        <Sidebar onLoad={handleLoadHistory} className="fixed top-0 left-0 w-72 h-screen" />
       </div>
 
-      <div className="md:pl-72">
-        {/* Top bar */}
-        <nav className="sticky top-1 z-30 bg-zinc-950 border-b border-zinc-800 flex justify-between items-center px-4 h-14">
+      <div className={`fixed top-0 left-0 z-50 h-full transform transition-transform duration-200 md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <Sidebar onLoad={(e) => { handleLoadHistory(e); setSidebarOpen(false); }} className="w-72 pt-14" />
+      </div>
+
+      <ProgressBar value={outputs.length ? (doneCount / outputs.length) * 100 : 0} />
+
+      <div className="flex-1 min-w-0 flex flex-col">
+        <nav className="sticky top-0 z-30 bg-surface-base/90 backdrop-blur border-b border-surface-border flex justify-between items-center px-4 h-14">
           <div className="flex items-center gap-2">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden text-zinc-400 hover:text-indigo-400 p-1.5 rounded-md hover:bg-zinc-800 transition-colors">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="md:hidden text-ink-secondary hover:text-orange-400 p-1.5 rounded-md hover:bg-surface-elevated transition-colors"
+              aria-label="Toggle history sidebar"
+            >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="3" y1="5" x2="17" y2="5" /><line x1="3" y1="10" x2="17" y2="10" /><line x1="3" y1="15" x2="17" y2="15" />
+                <line x1="3" y1="5" x2="17" y2="5" />
+                <line x1="3" y1="10" x2="17" y2="10" />
+                <line x1="3" y1="15" x2="17" y2="15" />
               </svg>
             </button>
-            <button onClick={() => navigate('/')} className="text-zinc-400 hover:text-zinc-100 transition-colors text-sm">← Back</button>
+            <button onClick={() => navigate('/')} className="text-ink-secondary hover:text-ink-primary transition-colors text-sm">← Back</button>
           </div>
-          <span className="text-sm text-zinc-400 truncate max-w-md text-center" title={idea}>"{idea}"</span>
+          <span className="text-sm text-ink-secondary truncate max-w-md text-center hidden sm:block" title={idea}>"{idea}"</span>
           <DownloadAll outputs={outputs} idea={idea} />
         </nav>
 
-        <main className="px-4 md:px-6 py-6 max-w-5xl mx-auto">
-          {/* Filter tabs */}
-          <div className="flex items-center gap-6 border-b border-zinc-800 mb-6">
-            {([{ key: 'all' as const, label: `All (${outputs.length})` }, { key: 'copy' as const, label: `Copy (${TEXT_TYPES.length})` }, { key: 'visuals' as const, label: `Visuals (${IMAGE_TYPES.length})` }]).map(t => (
+        <main className="px-4 md:px-6 py-6 max-w-5xl mx-auto w-full">
+          <div className="flex items-center gap-6 border-b border-surface-border mb-6">
+            {([
+              { key: 'all' as const, label: `All (${outputs.length})` },
+              { key: 'copy' as const, label: `Copy (${TEXT_TYPES.length})` },
+              { key: 'visuals' as const, label: `Visuals (${IMAGE_TYPES.length})` }
+            ]).map(t => (
               <button key={t.key} onClick={() => setTab(t.key)}
-                className={`pb-3 text-sm font-medium transition-colors border-b-2 ${tab === t.key ? 'text-indigo-400 border-indigo-400' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>
+                className={`pb-3 text-sm font-medium transition-colors border-b-2 ${tab === t.key ? 'text-orange-400 border-orange-400' : 'text-ink-muted border-transparent hover:text-ink-secondary'}`}>
                 {t.label}
               </button>
             ))}
           </div>
 
-          {/* Results grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filtered.map(o => {
+            {filtered.map((o, idx) => {
               const m = META[o.id];
               const isCopy = m.badge === 'copy';
-              const o2 = o as TOut;
-              const o3 = o as IOut;
-              const isExpanded = expandedId === o.id;
-
+              const span = tab === 'all' ? BENTO.find(b => b.id === o.id)?.span || '' : '';
               return (
-                <div key={o.id} className="bg-zinc-900 border border-zinc-800 rounded-md p-4 flex flex-col animate-fade-up" style={{ animationDelay: `${filtered.indexOf(o) * 60}ms` }}>
-                  <span className={`inline-block self-start px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-3 ${isCopy ? 'bg-indigo-500/10 text-indigo-400' : 'bg-zinc-800 text-zinc-400'}`}>
-                    {isCopy ? 'Copy' : 'Visual'}
-                  </span>
-                  <h3 className="text-zinc-100 font-medium mb-2">{m.label}</h3>
-                  <div className="flex-grow mb-4">
-                    {o.status === 'loading' ? (
-                      <div className="h-24 bg-zinc-800 rounded animate-pulse" />
-                    ) : o.status === 'error' ? (
-                      <div className="flex items-center gap-3">
-                        <p className="text-rose-400 text-sm">{(o as any).error}</p>
-                        <button onClick={() => handleRegenerate(o.id)} className="text-xs text-indigo-400 hover:text-indigo-300 underline">Retry</button>
-                      </div>
-                    ) : isCopy ? (
-                      <div>
-                        <p className={`text-zinc-400 text-sm whitespace-pre-wrap ${isExpanded ? '' : 'line-clamp-3'}`}>{o2.content}</p>
-                        {o2.content && o2.content.length > 150 && (
-                          <button onClick={() => setExpandedId(isExpanded ? null : o.id)} className="text-xs text-indigo-400 hover:text-indigo-300 mt-1 transition-colors">
-                            {isExpanded ? 'Show less' : 'Show more'}
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="rounded-md overflow-hidden bg-zinc-800">
-                        {o3.url ? <img src={o3.url} alt={o.id} className="w-full h-auto object-cover" loading="lazy" /> : <div className="w-full h-48 animate-pulse" />}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-2 pt-3 border-t border-zinc-800">
-                    {isCopy ? (
-                      <>
-                        <button onClick={() => handleCopy(o.id, o2.content)} className="flex-1 text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1">{copiedId === o.id ? '✓ Copied' : 'Copy'}</button>
-                        <button onClick={() => handleRegenerate(o.id)} className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1">Regenerate</button>
-                      </>
-                    ) : (
-                      <>
-                        <button onClick={() => handleRegenerate(o.id)} className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors py-1">Regenerate</button>
-                        {o3.url && <a href={o3.url} download={`${idea}-${o.id}.jpg`} className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors py-1 ml-auto">Download</a>}
-                      </>
-                    )}
-                  </div>
+                <div key={o.id} className={span} style={{ animationDelay: `${idx * 60}ms` }}>
+                  <OutputCard
+                    output={o}
+                    label={m.label}
+                    isCopy={isCopy}
+                    copiedId={copiedId}
+                    expanded={expandedId === o.id}
+                    onCopy={handleCopy}
+                    onRegenerate={handleRegenerate}
+                    onToggleExpand={() => setExpandedId(expandedId === o.id ? null : o.id)}
+                  />
                 </div>
               );
             })}
           </div>
         </main>
 
-        <footer className="border-t border-zinc-800 py-6 px-6 mt-auto">
+        <footer className="border-t border-surface-border py-6 px-6 bg-surface-sunken mt-auto">
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <span className="text-sm font-semibold text-zinc-100">Prompt to Market</span>
+            <span className="text-sm font-semibold text-ink-primary">Prompt to Market</span>
             <div className="flex gap-6">
-              <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">Privacy Policy</a>
-              <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">Terms of Service</a>
-              <a className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors" href="#">API Docs</a>
+              <a className="text-xs text-ink-muted hover:text-orange-400 transition-colors" href="#">Privacy Policy</a>
+              <a className="text-xs text-ink-muted hover:text-orange-400 transition-colors" href="#">Terms of Service</a>
+              <a className="text-xs text-ink-muted hover:text-orange-400 transition-colors" href="#">API Docs</a>
             </div>
-            <p className="text-xs text-zinc-500">© 2026 Prompt to Market</p>
+            <p className="text-xs text-ink-muted">© 2026 Prompt to Market</p>
           </div>
         </footer>
       </div>
