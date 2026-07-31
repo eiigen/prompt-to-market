@@ -34,7 +34,7 @@ export default function Sidebar({ onLoad, className = '' }: SidebarProps) {
                 <button
                   onClick={() => { deleteHistoryEntry(h.id); setHistory(getHistory()); }}
                   className="absolute top-2 right-2 text-ink-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                  aria-label="Delete history entry"
+                  aria-label={`Delete ${h.idea}`}
                 >
                   ✕
                 </button>
