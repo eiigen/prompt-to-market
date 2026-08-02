@@ -51,3 +51,19 @@ export function getImageUrl(prompt: string, width: number, height: number, model
   if (apiKey) params.set('key', apiKey);
   return `${BASE_URL}/image/${encoded}?${params.toString()}`;
 }
+
+export async function fetchImageDataUrl(url: string): Promise<string | undefined> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return undefined;
+    const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result as string);
+      fr.onerror = () => reject(fr.error);
+      fr.readAsDataURL(blob);
+    });
+  } catch {
+    return undefined;
+  }
+}

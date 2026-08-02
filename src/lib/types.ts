@@ -22,6 +22,7 @@ export interface ImageOutput {
   id: string;
   type: OutputType;
   url: string;
+  dataUrl?: string;
   width: number;
   height: number;
   status: 'pending' | 'loading' | 'done' | 'error';

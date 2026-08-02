@@ -24,7 +24,7 @@ function InfoTip({ text, children }: { text: string; children: React.ReactNode }
     <span ref={ref} className="relative inline-flex items-center">
       <span onClick={() => setOpen(!open)} className="cursor-pointer">{children}</span>
       {open && (
-        <span className="absolute bottom-full left-0 mb-2 w-52 max-w-[85vw] p-3 rounded-md bg-orange-500/10 border border-orange-500/30 text-orange-200 text-xs leading-relaxed z-50 shadow-lg break-words whitespace-normal">
+        <span className="absolute bottom-full left-0 mb-2 w-52 max-w-[85vw] p-3 border border-hazard bg-hazard-glow text-[#EAEAEA] text-[11px] leading-relaxed z-50 break-words whitespace-normal">
           {text}
         </span>
       )}
@@ -41,21 +41,21 @@ function ModelSelect({ models, value, onChange, placeholder }: { models: ModelIn
   return (
     <div className="relative flex-1">
       <button type="button" onClick={() => setOpen(!open)}
-        className="w-full bg-surface-elevated border border-surface-border text-ink-primary text-sm px-3 py-1.5 rounded-lg text-left flex justify-between items-center hover:border-orange-500/40 transition-colors">
-        <span className="truncate">{selected?.title || placeholder}</span>
-        <span className="text-ink-muted ml-1">▾</span>
+        className="w-full bg-[#121212] border border-[#1E1E1E] text-[#EAEAEA] text-[11px] font-mono px-3 py-1.5 text-left flex justify-between items-center hover:border-hazard transition-colors">
+        <span className="truncate uppercase tracking-[0.05em]">{selected?.title || placeholder}</span>
+        <span className="text-[#505050] ml-1">▾</span>
       </button>
       {open && (
-        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface-elevated border border-surface-border rounded-lg shadow-xl max-h-60 overflow-hidden flex flex-col">
+        <div className="absolute z-50 top-full left-0 right-0 mt-0.5 bg-[#121212] border border-[#1E1E1E] max-h-60 overflow-hidden flex flex-col">
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search models..." autoFocus
-            className="bg-surface-base text-ink-primary text-sm px-3 py-1.5 border-b border-surface-border outline-none focus:border-orange-500" />
+            className="bg-[#0A0A0A] text-[#EAEAEA] text-[11px] font-mono px-3 py-1.5 border-b border-[#1E1E1E] outline-none focus:border-hazard" />
           <div className="overflow-y-auto">
-            {filtered.length === 0 && <div className="px-3 py-1.5 text-ink-muted text-sm">No models found</div>}
+            {filtered.length === 0 && <div className="px-3 py-1.5 text-[#505050] text-[11px] font-mono">NO MODELS FOUND</div>}
             {filtered.map(m => (
               <button key={m.name} type="button" onClick={() => { onChange(m.name); setOpen(false); setSearch(''); }}
-                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-surface-base transition-colors ${m.name === value ? 'text-orange-400 bg-orange-500/10' : 'text-ink-primary'}`}>
-                <div className="truncate">{m.title}</div>
-                {m.description && <div className="text-[10px] text-ink-muted truncate">{m.description}</div>}
+                className={`w-full text-left px-3 py-1.5 text-[11px] font-mono hover:bg-[#0A0A0A] transition-colors ${m.name === value ? 'text-hazard bg-hazard-glow' : 'text-[#EAEAEA]'}`}>
+                <div className="truncate uppercase tracking-[0.05em]">{m.title}</div>
+                {m.description && <div className="text-[10px] text-[#505050] truncate">{m.description}</div>}
               </button>
             ))}
           </div>
@@ -85,46 +85,46 @@ export default function GenerateForm({ onGenerate, isLoading }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 animate-fade-up">
-      <div className="flex flex-col md:flex-row gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <div className="flex flex-col md:flex-row gap-0.5">
         <input type="text" value={idea} onChange={e => setIdea(e.target.value)}
-          placeholder="Describe your product idea (e.g., A subscription box for plant lovers)..."
-          className="flex-1 bg-surface-elevated border border-surface-border rounded-lg text-ink-primary px-4 py-3 text-base placeholder:text-ink-muted focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all"
+          placeholder="Describe your product idea..."
+          className="flex-1 bg-[#0A0A0A] border border-[#1E1E1E] text-[#EAEAEA] font-mono px-4 py-3 text-sm placeholder:text-[#505050] focus:border-hazard outline-none transition-colors"
           disabled={isLoading} />
         <button type="submit" disabled={isLoading || !idea.trim()}
-          className="bg-orange-500 hover:bg-orange-600 text-black rounded-lg px-6 py-3 font-semibold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap hover:shadow-glow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]">
-          {isLoading ? 'Generating...' : apiKey ? 'Generate Launch Kit' : 'Connect & Generate'}
+          className="bg-hazard hover:bg-hazard-dim text-[#EAEAEA] font-mono px-6 py-3 text-sm uppercase tracking-[0.1em] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap active:scale-[0.98]">
+          {isLoading ? 'GENERATING...' : apiKey ? '> GENERATE' : '> CONNECT & GENERATE'}
         </button>
       </div>
-      <div className="flex flex-col sm:flex-row gap-3 px-1 relative z-20">
+      <div className="flex flex-col sm:flex-row gap-2 px-0.5 relative z-20">
         <div className="flex items-center gap-2 flex-1">
-          <label className="text-sm text-ink-secondary whitespace-nowrap flex items-center gap-1">
-            Text:
+          <label className="text-[11px] text-[#909090] font-mono uppercase tracking-[0.1em] flex items-center gap-1">
+            TEXT:
             <InfoTip text="Recommended: deepseek, deepseek-pro, glm, or any Kimi variants for best results.">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-elevated border border-surface-border text-ink-secondary text-[11px] font-bold hover:bg-orange-500/10 hover:text-orange-400 hover:border-orange-500/40 transition-colors select-none">!</span>
+              <span className="inline-flex items-center justify-center w-4 h-4 border border-[#1E1E1E] text-[#909090] text-[10px] font-mono hover:border-hazard hover:text-hazard transition-colors select-none">?</span>
             </InfoTip>
           </label>
-          <ModelSelect models={textModels} value={textModel} onChange={setTextModel} placeholder="Select text model" />
+          <ModelSelect models={textModels} value={textModel} onChange={setTextModel} placeholder="SELECT MODEL" />
         </div>
         <div className="flex items-center gap-2 flex-1">
-          <label className="text-sm text-ink-secondary whitespace-nowrap flex items-center gap-1">
-            Image:
+          <label className="text-[11px] text-[#909090] font-mono uppercase tracking-[0.1em] flex items-center gap-1">
+            IMAGE:
             <InfoTip text="Use a larger image model for more accurate visuals.">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-elevated border border-surface-border text-ink-secondary text-[11px] font-bold hover:bg-orange-500/10 hover:text-orange-400 hover:border-orange-500/40 transition-colors select-none">!</span>
+              <span className="inline-flex items-center justify-center w-4 h-4 border border-[#1E1E1E] text-[#909090] text-[10px] font-mono hover:border-hazard hover:text-hazard transition-colors select-none">?</span>
             </InfoTip>
           </label>
-          <ModelSelect models={imageModels} value={imageModel} onChange={setImageModel} placeholder="Select image model" />
+          <ModelSelect models={imageModels} value={imageModel} onChange={setImageModel} placeholder="SELECT MODEL" />
         </div>
       </div>
-      <div className="text-sm text-ink-secondary px-1">
+      <div className="text-[11px] font-mono text-[#909090] px-0.5">
         {apiKey ? (
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Connected
-            <button type="button" onClick={logout} className="text-orange-400 hover:text-orange-300 underline ml-1">Disconnect</button>
+            <span className="inline-block w-2 h-2 bg-phosphor animate-terminal-blink" />
+            CONNECTED
+            <button type="button" onClick={logout} className="text-hazard hover:opacity-80 underline ml-1">[DISCONNECT]</button>
           </span>
         ) : (
-          <span>Connect Pollinations to start generating</span>
+          <span><span className="text-hazard-dim">&gt;&gt;</span> Connect Pollinations to start generating</span>
         )}
       </div>
     </form>

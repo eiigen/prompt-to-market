@@ -17,30 +17,30 @@ export default function Callback() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-surface-base flex items-center justify-center px-6">
-      <div className="bg-surface-elevated border border-surface-border rounded-2xl p-8 max-w-sm w-full text-center animate-scale-in">
+    <div className="crt min-h-screen bg-[#0A0A0A] text-[#EAEAEA] font-mono flex items-center justify-center px-6">
+      <div className="bg-[#121212] border border-[#1E1E1E] p-8 max-w-sm w-full text-center animate-scale-in">
         {status === 'processing' && (
           <>
-            <div className="w-10 h-10 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-lg text-ink-primary">Connecting to Pollinations...</p>
+            <div className="w-10 h-10 border-2 border-hazard/20 border-t-hazard rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-[11px] uppercase tracking-[0.15em] text-[#909090]">&gt; CONNECTING TO POLLINATIONS...</p>
           </>
         )}
         {status === 'success' && (
           <>
-            <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
-              <span className="text-emerald-400 text-lg">✓</span>
+            <div className="w-10 h-10 border border-phosphor/40 bg-phosphor/10 flex items-center justify-center mx-auto mb-4">
+              <span className="text-phosphor text-lg">✓</span>
             </div>
-            <p className="text-lg text-emerald-400">Connected! Redirecting...</p>
+            <p className="text-[11px] uppercase tracking-[0.15em] text-phosphor">CONNECTED! REDIRECTING...</p>
           </>
         )}
         {status === 'error' && (
           <>
-            <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4">
-              <span className="text-red-400 text-lg">✕</span>
+            <div className="w-10 h-10 border border-hazard/40 bg-hazard/10 flex items-center justify-center mx-auto mb-4">
+              <span className="text-hazard text-lg">✕</span>
             </div>
-            <p className="text-lg text-red-400">Connection failed.</p>
-            <button onClick={() => navigate('/')} className="mt-4 text-orange-400 hover:text-orange-300 underline">
-              Go back and try manually
+            <p className="text-[11px] uppercase tracking-[0.15em] text-hazard">CONNECTION FAILED.</p>
+            <button onClick={() => navigate('/')} className="mt-4 text-[11px] uppercase tracking-[0.1em] text-hazard hover:opacity-80 underline font-mono">
+              [GO BACK AND TRY MANUALLY]
             </button>
           </>
         )}

@@ -16,7 +16,9 @@ export default function DownloadAll({ outputs, idea }: Props) {
         zip.file('copy/' + o.type + '.txt', (o as TextOutput).content);
       } else if ('url' in o && (o as ImageOutput).url) {
         try {
-          const res = await fetch((o as ImageOutput).url);
+          const img = o as ImageOutput;
+          const src = img.dataUrl || img.url;
+          const res = await fetch(src);
           const blob = await res.blob();
           zip.file('visuals/' + o.type + '.jpg', blob);
         } catch {}
@@ -31,8 +33,8 @@ export default function DownloadAll({ outputs, idea }: Props) {
 
   return (
     <button onClick={handleDownload}
-      className="bg-orange-500 hover:bg-orange-600 text-black font-semibold rounded-lg px-4 py-2 transition-all hover:shadow-glow-sm hover:-translate-y-0.5 active:translate-y-0 text-sm">
-      Download All ({count})
+      className="bg-hazard hover:bg-hazard-dim text-[#EAEAEA] font-mono text-[11px] uppercase tracking-[0.1em] border border-hazard px-4 py-2 transition-all duration-200 active:scale-[0.98] whitespace-nowrap">
+      [DOWNLOAD ALL ({count})]
     </button>
   );
 }

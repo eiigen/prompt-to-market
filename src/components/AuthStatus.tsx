@@ -10,15 +10,17 @@ export default function AuthStatus({ hiddenWhenConnected = false }: Props) {
 
   if (key) {
     return (
-      <div className="flex items-center gap-2 text-sm text-ink-secondary">
-        <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-        Connected
-        <button onClick={logout} className="text-orange-400 hover:text-orange-300 underline ml-1">Disconnect</button>
+      <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.1em] text-[#909090]">
+        <span className="inline-block w-2 h-2 bg-phosphor animate-terminal-blink" />
+        [CONNECTED]
+        <button onClick={logout} className="text-hazard hover:opacity-80 underline ml-1">[DISCONNECT]</button>
       </div>
     );
   }
 
   return (
-    <span className="text-sm text-ink-secondary">Connect Pollinations to start generating</span>
+    <span className="text-[11px] font-mono uppercase tracking-[0.1em] text-[#505050]">
+      &gt;&gt; CONNECT POLLINATIONS TO START GENERATING
+    </span>
   );
 }

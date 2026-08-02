@@ -4,13 +4,20 @@ export default function EmptyState() {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center animate-fade-up">
-      <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-4">
-        <span className="text-2xl">✨</span>
+      <div className="w-14 h-14 border border-[#1E1E1E] bg-[#0A0A0A] flex items-center justify-center mb-4">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" className="text-hazard-dim">
+          <rect x="3" y="3" width="18" height="18" />
+          <path d="M3 9h18M9 21V9" />
+        </svg>
       </div>
-      <h2 className="text-xl font-semibold text-ink-primary mb-2">No launch kit yet</h2>
-      <p className="text-ink-secondary text-sm max-w-xs mb-6">Describe your product idea and we’ll generate everything you need to launch.</p>
-      <button onClick={() => navigate('/')} className="bg-orange-500 hover:bg-orange-600 text-black font-semibold px-5 py-2.5 rounded-lg transition-all hover:shadow-glow-sm hover:-translate-y-0.5 active:translate-y-0">
-        Generate New Idea
+      <h2 className="text-sm font-mono uppercase tracking-[0.15em] text-[#EAEAEA] mb-3">
+        <span className="text-hazard-dim">[ </span>NO LAUNCH KIT<span className="text-hazard-dim"> ]</span>
+      </h2>
+      <p className="text-[#909090] text-[11px] font-mono max-w-xs mb-6 leading-relaxed">
+        &gt;&gt; DESCRIBE YOUR PRODUCT IDEA AND WE&apos;LL GENERATE EVERYTHING YOU NEED TO LAUNCH.
+      </p>
+      <button onClick={() => navigate('/')} className="bg-hazard hover:bg-hazard-dim text-[#EAEAEA] font-mono text-[11px] uppercase tracking-[0.1em] border border-hazard px-5 py-2.5 transition-all duration-200 active:scale-[0.98]">
+        &gt; GENERATE NEW IDEA
       </button>
     </div>
   );
